@@ -56,7 +56,17 @@
         .file-item.processing { background: #fff3cd; }
         .file-item.success { background: #d4edda; }
         .file-item.error { background: #f8d7da; }
-        .file-icon { font-size: 24px; margin-right: 12px; }
+        .file-icon { font-size: 24px; margin-right: 12px; width: 24px; text-align: center; }
+        .file-cover {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 12px;
+            display: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .file-cover.visible { display: block; }
         .file-info { flex: 1; min-width: 0; }
         .file-name {
             font-weight: 500;
@@ -492,6 +502,7 @@ const ID3Writer = (function() {
         div.className = 'file-item';
         div.id = 'file-' + item.id;
         div.innerHTML = `
+            <img class="file-cover" id="cover-${item.id}" alt="封面">
             <div class="file-icon">🎵</div>
             <div class="file-info">
                 <div class="file-name" title="${item.name}">${item.name}</div>
@@ -516,6 +527,8 @@ const ID3Writer = (function() {
         const progressBar = div.querySelector('.progress-bar');
         const progressFill = div.querySelector('.progress-fill');
         const downloadBtn = div.querySelector('.btn-download');
+        const coverImg = div.querySelector('.file-cover');
+        const fileIcon = div.querySelector('.file-icon');
         if (updates.status === 'processing') {
             div.className = 'file-item processing';
             statusEl.textContent = '正在转换...';
@@ -527,6 +540,12 @@ const ID3Writer = (function() {
             progressBar.style.display = 'none';
             downloadBtn.style.display = 'block';
             downloadBtn.onclick = () => downloadFile(id);
+            if (updates.coverImage) {
+                const blob = new Blob([updates.coverImage], { type: updates.coverMime || 'image/jpeg' });
+                coverImg.src = URL.createObjectURL(blob);
+                coverImg.classList.add('visible');
+                fileIcon.style.display = 'none';
+            }
         } else if (updates.status === 'error') {
             div.className = 'file-item error';
             statusEl.textContent = '转换失败: ' + updates.error;
@@ -610,7 +629,13 @@ const ID3Writer = (function() {
             fileObj.status = 'success';
             fileObj.result = result;
             stats.success++;
-            updateFileItem(fileObj.id, { status: 'success', format: result.format.ext, size: result.audioData.length });
+            updateFileItem(fileObj.id, { 
+                status: 'success', 
+                format: result.format.ext, 
+                size: result.audioData.length,
+                coverImage: result.image,
+                coverMime: result.imageMime
+            });
             return true;
         } catch (error) {
             console.error('转换失败:', error);
