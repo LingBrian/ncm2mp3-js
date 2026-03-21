@@ -155,6 +155,109 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .btn-preview {
+            background: #28a745;
+            color: white;
+        }
+        .btn-preview:hover { background: #218838; }
+        .btn-preview.playing {
+            background: #dc3545;
+        }
+        .audio-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+        .audio-player.visible { display: block; }
+        .player-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .player-cover {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .player-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .player-title {
+            color: white;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 14px;
+        }
+        .player-artist {
+            color: rgba(255,255,255,0.8);
+            font-size: 12px;
+            margin-top: 2px;
+        }
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .player-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .player-btn:hover { background: rgba(255,255,255,0.3); }
+        .player-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            margin-top: 8px;
+            cursor: pointer;
+            position: relative;
+        }
+        .player-progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        .player-time {
+            color: rgba(255,255,255,0.8);
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+        .player-close {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            font-size: 20px;
+            padding: 5px;
+        }
+        .player-close:hover { color: white; }
     </style>
 </head>
 <body>
@@ -190,6 +293,27 @@
                 <div class="stat-value" id="failCount">0</div>
                 <div class="stat-label">转换失败</div>
             </div>
+        </div>
+    </div>
+
+    <div class="audio-player" id="audioPlayer">
+        <div class="player-content">
+            <img class="player-cover" id="playerCover" src="" alt="封面">
+            <div class="player-info">
+                <div class="player-title" id="playerTitle">未播放</div>
+                <div class="player-artist" id="playerArtist">-</div>
+                <div class="player-progress" id="playerProgress">
+                    <div class="player-progress-fill" id="playerProgressFill"></div>
+                </div>
+                <div class="player-time">
+                    <span id="playerCurrentTime">0:00</span>
+                    <span id="playerDuration">0:00</span>
+                </div>
+            </div>
+            <div class="player-controls">
+                <button class="player-btn" id="playerPlayBtn">▶</button>
+            </div>
+            <button class="player-close" id="playerClose">✕</button>
         </div>
     </div>
 
@@ -512,6 +636,7 @@ const ID3Writer = (function() {
                 </div>
             </div>
             <div class="file-actions">
+                <button class="btn btn-preview" style="display: none;">预览</button>
                 <button class="btn btn-download" style="display: none;">下载</button>
                 <button class="btn btn-remove">删除</button>
             </div>
@@ -527,6 +652,7 @@ const ID3Writer = (function() {
         const progressBar = div.querySelector('.progress-bar');
         const progressFill = div.querySelector('.progress-fill');
         const downloadBtn = div.querySelector('.btn-download');
+        const previewBtn = div.querySelector('.btn-preview');
         const coverImg = div.querySelector('.file-cover');
         const fileIcon = div.querySelector('.file-icon');
         if (updates.status === 'processing') {
@@ -539,7 +665,9 @@ const ID3Writer = (function() {
             statusEl.textContent = `转换成功 - ${updates.format.toUpperCase()} (${formatFileSize(updates.size)})`;
             progressBar.style.display = 'none';
             downloadBtn.style.display = 'block';
+            previewBtn.style.display = 'block';
             downloadBtn.onclick = () => downloadFile(id);
+            previewBtn.onclick = () => previewFile(id);
             if (updates.coverImage) {
                 const blob = new Blob([updates.coverImage], { type: updates.coverMime || 'image/jpeg' });
                 coverImg.src = URL.createObjectURL(blob);
@@ -658,7 +786,138 @@ const ID3Writer = (function() {
     function clearAll() {
         files = []; fileList.innerHTML = ''; stats = { total: 0, success: 0, fail: 0 };
         updateStats(); updateButtons();
+        closePlayer();
     }
+    
+    let audio = null;
+    let currentPlayingId = null;
+    
+    const audioPlayer = document.getElementById('audioPlayer');
+    const playerCover = document.getElementById('playerCover');
+    const playerTitle = document.getElementById('playerTitle');
+    const playerArtist = document.getElementById('playerArtist');
+    const playerProgress = document.getElementById('playerProgress');
+    const playerProgressFill = document.getElementById('playerProgressFill');
+    const playerCurrentTime = document.getElementById('playerCurrentTime');
+    const playerDuration = document.getElementById('playerDuration');
+    const playerPlayBtn = document.getElementById('playerPlayBtn');
+    const playerClose = document.getElementById('playerClose');
+    
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    function previewFile(id) {
+        const fileObj = files.find(f => f.id === id);
+        if (!fileObj || !fileObj.result) return;
+        
+        if (currentPlayingId === id && audio && !audio.paused) {
+            audio.pause();
+            playerPlayBtn.textContent = '▶';
+            updatePreviewButtonState(id, false);
+            return;
+        }
+        
+        if (audio) {
+            audio.pause();
+            URL.revokeObjectURL(audio.src);
+            if (currentPlayingId !== id) {
+                updatePreviewButtonState(currentPlayingId, false);
+            }
+        }
+        
+        const blob = new Blob([fileObj.result.audioData], { type: fileObj.result.format.mime });
+        audio = new Audio(URL.createObjectURL(blob));
+        currentPlayingId = id;
+        
+        audio.addEventListener('loadedmetadata', () => {
+            playerDuration.textContent = formatTime(audio.duration);
+        });
+        
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            playerProgressFill.style.width = progress + '%';
+            playerCurrentTime.textContent = formatTime(audio.currentTime);
+        });
+        
+        audio.addEventListener('ended', () => {
+            playerPlayBtn.textContent = '▶';
+            updatePreviewButtonState(id, false);
+        });
+        
+        audio.addEventListener('error', (e) => {
+            console.error('音频播放错误:', e);
+            alert('音频播放失败，请检查文件格式');
+        });
+        
+        playerTitle.textContent = fileObj.result.songName;
+        playerArtist.textContent = fileObj.result.artist;
+        
+        if (fileObj.result.image) {
+            const coverBlob = new Blob([fileObj.result.image], { type: fileObj.result.imageMime || 'image/jpeg' });
+            playerCover.src = URL.createObjectURL(coverBlob);
+        } else {
+            playerCover.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="%23ffffff"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>';
+        }
+        
+        audioPlayer.classList.add('visible');
+        audio.play();
+        playerPlayBtn.textContent = '⏸';
+        updatePreviewButtonState(id, true);
+    }
+    
+    function updatePreviewButtonState(id, isPlaying) {
+        document.querySelectorAll('.btn-preview').forEach(btn => {
+            btn.classList.remove('playing');
+            btn.textContent = '预览';
+        });
+        
+        if (isPlaying && id !== null) {
+            const div = document.getElementById('file-' + id);
+            if (div) {
+                const btn = div.querySelector('.btn-preview');
+                if (btn) {
+                    btn.classList.add('playing');
+                    btn.textContent = '停止';
+                }
+            }
+        }
+    }
+    
+    function closePlayer() {
+        if (audio) {
+            audio.pause();
+            URL.revokeObjectURL(audio.src);
+            audio = null;
+        }
+        currentPlayingId = null;
+        audioPlayer.classList.remove('visible');
+        updatePreviewButtonState(null, false);
+    }
+    
+    playerPlayBtn.addEventListener('click', () => {
+        if (!audio) return;
+        if (audio.paused) {
+            audio.play();
+            playerPlayBtn.textContent = '⏸';
+            updatePreviewButtonState(currentPlayingId, true);
+        } else {
+            audio.pause();
+            playerPlayBtn.textContent = '▶';
+            updatePreviewButtonState(currentPlayingId, false);
+        }
+    });
+    
+    playerProgress.addEventListener('click', (e) => {
+        if (!audio) return;
+        const rect = playerProgress.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = percent * audio.duration;
+    });
+    
+    playerClose.addEventListener('click', closePlayer);
     
     dropZone.addEventListener('click', () => fileInput.click());
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
