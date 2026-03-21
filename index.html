@@ -4,270 +4,559 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NCM 转 MP3 转换器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
+        :root {
+            --md-sys-color-primary: #6750A4;
+            --md-sys-color-on-primary: #FFFFFF;
+            --md-sys-color-primary-container: #EADDFF;
+            --md-sys-color-on-primary-container: #21005D;
+            --md-sys-color-secondary: #625B71;
+            --md-sys-color-on-secondary: #FFFFFF;
+            --md-sys-color-secondary-container: #E8DEF8;
+            --md-sys-color-on-secondary-container: #1D192B;
+            --md-sys-color-tertiary: #7D5260;
+            --md-sys-color-on-tertiary: #FFFFFF;
+            --md-sys-color-tertiary-container: #FFD8E4;
+            --md-sys-color-on-tertiary-container: #31111D;
+            --md-sys-color-error: #B3261E;
+            --md-sys-color-on-error: #FFFFFF;
+            --md-sys-color-error-container: #F9DEDC;
+            --md-sys-color-on-error-container: #410E0B;
+            --md-sys-color-background: #FFFBFE;
+            --md-sys-color-on-background: #1C1B1F;
+            --md-sys-color-surface: #FFFBFE;
+            --md-sys-color-on-surface: #1C1B1F;
+            --md-sys-color-surface-variant: #E7E0EC;
+            --md-sys-color-on-surface-variant: #49454F;
+            --md-sys-color-outline: #79747E;
+            --md-sys-color-outline-variant: #CAC4D0;
+            --md-sys-color-surface-container: #F3EDF7;
+            --md-sys-color-surface-container-high: #ECE6F0;
+            --md-sys-color-surface-container-highest: #E6E0E9;
+            --md-sys-color-inverse-surface: #313033;
+            --md-sys-color-inverse-on-surface: #F4EFF4;
+            --md-sys-color-inverse-primary: #D0BCFF;
+            --md-sys-typescale-display-large: 57px;
+            --md-sys-typescale-headline-large: 32px;
+            --md-sys-typescale-headline-medium: 28px;
+            --md-sys-typescale-title-large: 22px;
+            --md-sys-typescale-title-medium: 16px;
+            --md-sys-typescale-body-large: 16px;
+            --md-sys-typescale-body-medium: 14px;
+            --md-sys-typescale-label-large: 14px;
+            --md-sys-typescale-label-medium: 12px;
+            --md-sys-shape-corner-large: 16px;
+            --md-sys-shape-corner-medium: 12px;
+            --md-sys-shape-corner-small: 8px;
+            --md-sys-shape-corner-extra-large: 28px;
+            --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+            --md-sys-motion-duration-medium: 300ms;
+        }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--md-sys-color-surface);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 24px;
+            color: var(--md-sys-color-on-background);
         }
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 600px;
+        
+        .app-header {
+            text-align: center;
+            margin-bottom: 32px;
             width: 100%;
+            max-width: 640px;
         }
-        h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 28px; }
-        .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
+        
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-tertiary));
+            border-radius: var(--md-sys-shape-corner-extra-large);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 4px 16px rgba(103, 80, 164, 0.3);
+        }
+        
+        .app-icon .material-icons-round {
+            font-size: 40px;
+            color: var(--md-sys-color-on-primary);
+        }
+        
+        .app-title {
+            font-size: var(--md-sys-typescale-headline-large);
+            font-weight: 700;
+            color: var(--md-sys-color-on-background);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        
+        .app-subtitle {
+            font-size: var(--md-sys-typescale-body-medium);
+            color: var(--md-sys-color-on-surface-variant);
+        }
+        
+        .main-card {
+            background: var(--md-sys-color-surface-container);
+            border-radius: var(--md-sys-shape-corner-extra-large);
+            padding: 24px;
+            width: 100%;
+            max-width: 640px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
         .drop-zone {
-            border: 3px dashed #667eea;
-            border-radius: 15px;
-            padding: 50px 20px;
+            border: 2px dashed var(--md-sys-color-outline-variant);
+            border-radius: var(--md-sys-shape-corner-large);
+            padding: 48px 24px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            background: #f8f9ff;
+            transition: all var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+            background: var(--md-sys-color-surface);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .drop-zone::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--md-sys-color-primary);
+            opacity: 0;
+            transition: opacity var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+        }
+        
         .drop-zone:hover, .drop-zone.dragover {
-            border-color: #764ba2;
-            background: #f0f2ff;
-            transform: scale(1.02);
+            border-color: var(--md-sys-color-primary);
+            background: var(--md-sys-color-primary-container);
         }
-        .drop-zone-icon { font-size: 48px; margin-bottom: 15px; }
-        .drop-zone-text { color: #666; font-size: 16px; }
-        .drop-zone-hint { color: #999; font-size: 12px; margin-top: 10px; }
+        
+        .drop-zone:hover::before, .drop-zone.dragover::before {
+            opacity: 0.08;
+        }
+        
+        .drop-zone-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--md-sys-color-surface-container-highest);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        
+        .drop-zone-icon .material-icons-round {
+            font-size: 32px;
+            color: var(--md-sys-color-primary);
+        }
+        
+        .drop-zone-text {
+            font-size: var(--md-sys-typescale-body-large);
+            color: var(--md-sys-color-on-surface);
+            margin-bottom: 8px;
+        }
+        
+        .drop-zone-hint {
+            font-size: var(--md-sys-typescale-body-medium);
+            color: var(--md-sys-color-on-surface-variant);
+        }
+        
         #fileInput { display: none; }
-        .file-list { margin-top: 20px; max-height: 300px; overflow-y: auto; }
+        
+        .file-list {
+            margin-top: 24px;
+            max-height: 360px;
+            overflow-y: auto;
+        }
+        
+        .file-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .file-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .file-list::-webkit-scrollbar-thumb {
+            background: var(--md-sys-color-outline-variant);
+            border-radius: 4px;
+        }
+        
         .file-item {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
-            background: #f5f5f5;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            transition: all 0.3s ease;
+            padding: 12px 16px;
+            background: var(--md-sys-color-surface);
+            border-radius: var(--md-sys-shape-corner-medium);
+            margin-bottom: 8px;
+            transition: all var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+            border: 1px solid var(--md-sys-color-outline-variant);
         }
-        .file-item.processing { background: #fff3cd; }
-        .file-item.success { background: #d4edda; }
-        .file-item.error { background: #f8d7da; }
-        .file-icon { font-size: 24px; margin-right: 12px; width: 24px; text-align: center; }
+        
+        .file-item:hover {
+            background: var(--md-sys-color-surface-container-high);
+        }
+        
+        .file-item.processing {
+            border-color: var(--md-sys-color-tertiary);
+            background: var(--md-sys-color-tertiary-container);
+        }
+        
+        .file-item.success {
+            border-color: #4CAF50;
+            background: #E8F5E9;
+        }
+        
+        .file-item.error {
+            border-color: var(--md-sys-color-error);
+            background: var(--md-sys-color-error-container);
+        }
+        
         .file-cover {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
+            width: 56px;
+            height: 56px;
+            border-radius: var(--md-sys-shape-corner-small);
             object-fit: cover;
-            margin-right: 12px;
+            margin-right: 16px;
             display: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            background: var(--md-sys-color-surface-container-highest);
         }
+        
         .file-cover.visible { display: block; }
+        
+        .file-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--md-sys-shape-corner-small);
+            background: var(--md-sys-color-surface-container-highest);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+        
+        .file-icon .material-icons-round {
+            font-size: 28px;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+        
         .file-info { flex: 1; min-width: 0; }
+        
         .file-name {
+            font-size: var(--md-sys-typescale-title-medium);
             font-weight: 500;
-            color: #333;
+            color: var(--md-sys-color-on-surface);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-bottom: 4px;
         }
-        .file-status { font-size: 12px; color: #666; margin-top: 3px; }
-        .file-actions { display: flex; gap: 8px; }
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
+        
+        .file-status {
+            font-size: var(--md-sys-typescale-body-medium);
+            color: var(--md-sys-color-on-surface-variant);
         }
-        .btn-download { background: #667eea; color: white; }
-        .btn-download:hover { background: #5a6fd6; }
-        .btn-remove { background: #dc3545; color: white; }
-        .btn-remove:hover { background: #c82333; }
+        
+        .file-item.success .file-status { color: #2E7D32; }
+        .file-item.error .file-status { color: var(--md-sys-color-error); }
+        
         .progress-bar {
             height: 4px;
-            background: #e0e0e0;
+            background: var(--md-sys-color-surface-container-highest);
             border-radius: 2px;
             margin-top: 8px;
             overflow: hidden;
         }
+        
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: var(--md-sys-color-primary);
             border-radius: 2px;
-            transition: width 0.3s ease;
+            transition: width 0.2s var(--md-sys-motion-easing-standard);
         }
-        .actions { display: flex; gap: 10px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 30px;
-            font-size: 16px;
+        
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: 8px;
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .btn-secondary { background: #6c757d; color: white; padding: 12px 30px; font-size: 16px; }
-        .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        .md-icon-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            color: var(--md-sys-color-on-surface-variant);
+            transition: all var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+        }
+        
+        .md-icon-btn:hover {
+            background: var(--md-sys-color-surface-container-highest);
+        }
+        
+        .md-icon-btn.primary { color: var(--md-sys-color-primary); }
+        .md-icon-btn.error { color: var(--md-sys-color-error); }
+        .md-icon-btn.success { color: #2E7D32; }
+        
+        .md-icon-btn .material-icons-round { font-size: 22px; }
+        
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .md-filled-btn {
+            height: 40px;
+            padding: 0 24px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: var(--md-sys-typescale-label-large);
+            font-weight: 500;
+            letter-spacing: 0.1px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+            transition: all var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+        }
+        
+        .md-filled-btn:hover {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 4px 8px rgba(103, 80, 164, 0.24);
+        }
+        
+        .md-filled-btn:disabled {
+            display: none;
+        }
+        
+        .md-filled-btn .material-icons-round { font-size: 18px; }
+        
+        .md-tonal-btn {
+            height: 40px;
+            padding: 0 24px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: var(--md-sys-typescale-label-large);
+            font-weight: 500;
+            letter-spacing: 0.1px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--md-sys-color-secondary-container);
+            color: var(--md-sys-color-on-secondary-container);
+            transition: all var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+        }
+        
+        .md-tonal-btn:hover {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+        
+        .md-tonal-btn:disabled {
+            display: none;
+        }
+        
+        .md-tonal-btn .material-icons-round { font-size: 18px; }
+        
         .stats {
             display: flex;
             justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+            gap: 32px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--md-sys-color-outline-variant);
         }
+        
         .stat-item { text-align: center; }
-        .stat-value { font-size: 24px; font-weight: bold; color: #667eea; }
-        .stat-label { font-size: 12px; color: #999; margin-top: 5px; }
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+        
+        .stat-value {
+            font-size: var(--md-sys-typescale-headline-medium);
+            font-weight: 700;
+            color: var(--md-sys-color-primary);
         }
-        .loading-content {
-            background: white;
-            padding: 30px 50px;
-            border-radius: 15px;
-            text-align: center;
+        
+        .stat-label {
+            font-size: var(--md-sys-typescale-label-medium);
+            color: var(--md-sys-color-on-surface-variant);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .btn-preview {
-            background: #28a745;
-            color: white;
-        }
-        .btn-preview:hover { background: #218838; }
-        .btn-preview.playing {
-            background: #dc3545;
-        }
+        
         .audio-player {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 15px 20px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+            background: var(--md-sys-color-inverse-surface);
+            padding: 16px 24px;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.2);
             display: none;
             z-index: 1000;
         }
+        
         .audio-player.visible { display: block; }
+        
         .player-content {
-            max-width: 600px;
+            max-width: 640px;
             margin: 0 auto;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 16px;
         }
+        
         .player-cover {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
+            width: 56px;
+            height: 56px;
+            border-radius: var(--md-sys-shape-corner-small);
             object-fit: cover;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            background: var(--md-sys-color-surface-variant);
         }
-        .player-info {
-            flex: 1;
-            min-width: 0;
-        }
+        
+        .player-info { flex: 1; min-width: 0; }
+        
         .player-title {
-            color: white;
+            color: var(--md-sys-color-inverse-on-surface);
             font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 14px;
+            font-size: var(--md-sys-typescale-title-medium);
         }
+        
         .player-artist {
-            color: rgba(255,255,255,0.8);
-            font-size: 12px;
+            color: rgba(244, 239, 244, 0.7);
+            font-size: var(--md-sys-typescale-body-medium);
             margin-top: 2px;
         }
-        .player-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .player-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .player-btn:hover { background: rgba(255,255,255,0.3); }
+        
         .player-progress {
             width: 100%;
             height: 4px;
-            background: rgba(255,255,255,0.3);
+            background: rgba(244, 239, 244, 0.3);
             border-radius: 2px;
             margin-top: 8px;
             cursor: pointer;
-            position: relative;
         }
+        
         .player-progress-fill {
             height: 100%;
-            background: white;
+            background: var(--md-sys-color-inverse-primary);
             border-radius: 2px;
             width: 0%;
-            transition: width 0.1s linear;
         }
+        
         .player-time {
-            color: rgba(255,255,255,0.8);
-            font-size: 11px;
+            color: rgba(244, 239, 244, 0.7);
+            font-size: var(--md-sys-typescale-label-medium);
             display: flex;
             justify-content: space-between;
             margin-top: 4px;
         }
-        .player-close {
-            background: transparent;
-            border: none;
-            color: rgba(255,255,255,0.7);
-            cursor: pointer;
-            font-size: 20px;
-            padding: 5px;
+        
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .player-close:hover { color: white; }
+        
+        .player-btn {
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            background: var(--md-sys-color-inverse-primary);
+            color: var(--md-sys-color-inverse-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+        }
+        
+        .player-btn:hover {
+            background: #E2D4FF;
+        }
+        
+        .player-close {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            background: transparent;
+            color: var(--md-sys-color-inverse-on-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+            transition: opacity var(--md-sys-motion-duration-medium);
+        }
+        
+        .player-close:hover { opacity: 1; }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.12;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple {
+            to { transform: scale(4); opacity: 0; }
+        }
+        
+        @media (max-width: 480px) {
+            body { padding: 16px; }
+            .main-card { padding: 16px; }
+            .app-title { font-size: var(--md-sys-typescale-headline-medium); }
+            .stats { gap: 16px; }
+            .file-actions { flex-wrap: wrap; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎵 NCM 转 MP3</h1>
-        <p class="subtitle">网易云音乐 NCM 格式解密转换工具（纯浏览器端，无需上传）</p>
-        
+    <header class="app-header">
+        <div class="app-icon">
+            <span class="material-icons-round">music_note</span>
+        </div>
+        <h1 class="app-title">NCM 转 MP3</h1>
+        <p class="app-subtitle">网易云音乐 NCM 格式解密转换工具（纯浏览器端）</p>
+    </header>
+    
+    <main class="main-card">
         <div class="drop-zone" id="dropZone">
-            <div class="drop-zone-icon">📁</div>
-            <div class="drop-zone-text">拖拽 NCM 文件到这里，或点击选择文件</div>
+            <div class="drop-zone-icon">
+                <span class="material-icons-round">folder_open</span>
+            </div>
+            <div class="drop-zone-text">拖拽 NCM 文件到这里，或点击选择</div>
             <div class="drop-zone-hint">支持批量转换，所有操作在本地完成</div>
         </div>
         <input type="file" id="fileInput" multiple accept=".ncm">
@@ -275,9 +564,18 @@
         <div class="file-list" id="fileList"></div>
         
         <div class="actions">
-            <button class="btn btn-primary" id="convertBtn" disabled>开始转换</button>
-            <button class="btn btn-secondary" id="downloadAllBtn" disabled>打包下载</button>
-            <button class="btn btn-secondary" id="clearBtn" disabled>清空列表</button>
+            <button class="md-filled-btn" id="convertBtn" disabled>
+                <span class="material-icons-round">transform</span>
+                开始转换
+            </button>
+            <button class="md-tonal-btn" id="downloadAllBtn" disabled>
+                <span class="material-icons-round">download</span>
+                打包下载
+            </button>
+            <button class="md-tonal-btn" id="clearBtn" disabled>
+                <span class="material-icons-round">delete_outline</span>
+                清空列表
+            </button>
         </div>
         
         <div class="stats">
@@ -294,7 +592,7 @@
                 <div class="stat-label">转换失败</div>
             </div>
         </div>
-    </div>
+    </main>
 
     <div class="audio-player" id="audioPlayer">
         <div class="player-content">
@@ -311,9 +609,13 @@
                 </div>
             </div>
             <div class="player-controls">
-                <button class="player-btn" id="playerPlayBtn">▶</button>
+                <button class="player-btn" id="playerPlayBtn">
+                    <span class="material-icons-round">play_arrow</span>
+                </button>
             </div>
-            <button class="player-close" id="playerClose">✕</button>
+            <button class="player-close" id="playerClose">
+                <span class="material-icons-round">close</span>
+            </button>
         </div>
     </div>
 
@@ -627,21 +929,21 @@ const ID3Writer = (function() {
         div.id = 'file-' + item.id;
         div.innerHTML = `
             <img class="file-cover" id="cover-${item.id}" alt="封面">
-            <div class="file-icon">🎵</div>
+            <div class="file-icon"><span class="material-icons-round">audio_file</span></div>
             <div class="file-info">
                 <div class="file-name" title="${item.name}">${item.name}</div>
-                <div class="file-status">${formatFileSize(item.size)} - 等待转换</div>
+                <div class="file-status">${formatFileSize(item.size)} · 等待转换</div>
                 <div class="progress-bar" style="display: none;">
                     <div class="progress-fill" style="width: 0%"></div>
                 </div>
             </div>
             <div class="file-actions">
-                <button class="btn btn-preview" style="display: none;">预览</button>
-                <button class="btn btn-download" style="display: none;">下载</button>
-                <button class="btn btn-remove">删除</button>
+                <button class="md-icon-btn primary" style="display: none;" title="预览"><span class="material-icons-round">play_arrow</span></button>
+                <button class="md-icon-btn primary" style="display: none;" title="下载"><span class="material-icons-round">download</span></button>
+                <button class="md-icon-btn error" title="删除"><span class="material-icons-round">close</span></button>
             </div>
         `;
-        div.querySelector('.btn-remove').addEventListener('click', () => { removeFile(item.id); });
+        div.querySelector('.md-icon-btn.error').addEventListener('click', () => { removeFile(item.id); });
         fileList.appendChild(div);
     }
     
@@ -651,8 +953,8 @@ const ID3Writer = (function() {
         const statusEl = div.querySelector('.file-status');
         const progressBar = div.querySelector('.progress-bar');
         const progressFill = div.querySelector('.progress-fill');
-        const downloadBtn = div.querySelector('.btn-download');
-        const previewBtn = div.querySelector('.btn-preview');
+        const downloadBtn = div.querySelectorAll('.md-icon-btn')[1];
+        const previewBtn = div.querySelectorAll('.md-icon-btn')[0];
         const coverImg = div.querySelector('.file-cover');
         const fileIcon = div.querySelector('.file-icon');
         if (updates.status === 'processing') {
@@ -662,10 +964,10 @@ const ID3Writer = (function() {
             if (updates.progress !== undefined) progressFill.style.width = (updates.progress * 100) + '%';
         } else if (updates.status === 'success') {
             div.className = 'file-item success';
-            statusEl.textContent = `转换成功 - ${updates.format.toUpperCase()} (${formatFileSize(updates.size)})`;
+            statusEl.textContent = `${updates.format.toUpperCase()} · ${formatFileSize(updates.size)}`;
             progressBar.style.display = 'none';
-            downloadBtn.style.display = 'block';
-            previewBtn.style.display = 'block';
+            downloadBtn.style.display = 'flex';
+            previewBtn.style.display = 'flex';
             downloadBtn.onclick = () => downloadFile(id);
             previewBtn.onclick = () => previewFile(id);
             if (updates.coverImage) {
@@ -716,7 +1018,6 @@ const ID3Writer = (function() {
         const successFiles = files.filter(f => f.status === 'success' && f.result);
         if (successFiles.length === 0) return;
         downloadAllBtn.disabled = true;
-        downloadAllBtn.textContent = '打包中...';
         try {
             const zip = new JSZip();
             for (const fileObj of successFiles) {
@@ -739,7 +1040,6 @@ const ID3Writer = (function() {
             alert('打包下载失败: ' + error.message);
         } finally {
             downloadAllBtn.disabled = false;
-            downloadAllBtn.textContent = '打包下载';
         }
     }
     
@@ -815,7 +1115,7 @@ const ID3Writer = (function() {
         
         if (currentPlayingId === id && audio && !audio.paused) {
             audio.pause();
-            playerPlayBtn.textContent = '▶';
+            playerPlayBtn.innerHTML = '<span class="material-icons-round">play_arrow</span>';
             updatePreviewButtonState(id, false);
             return;
         }
@@ -843,7 +1143,7 @@ const ID3Writer = (function() {
         });
         
         audio.addEventListener('ended', () => {
-            playerPlayBtn.textContent = '▶';
+            playerPlayBtn.innerHTML = '<span class="material-icons-round">play_arrow</span>';
             updatePreviewButtonState(id, false);
         });
         
@@ -859,28 +1159,29 @@ const ID3Writer = (function() {
             const coverBlob = new Blob([fileObj.result.image], { type: fileObj.result.imageMime || 'image/jpeg' });
             playerCover.src = URL.createObjectURL(coverBlob);
         } else {
-            playerCover.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="%23ffffff"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>';
+            playerCover.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="%23797585"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>';
         }
         
         audioPlayer.classList.add('visible');
         audio.play();
-        playerPlayBtn.textContent = '⏸';
+        playerPlayBtn.innerHTML = '<span class="material-icons-round">pause</span>';
         updatePreviewButtonState(id, true);
     }
     
     function updatePreviewButtonState(id, isPlaying) {
-        document.querySelectorAll('.btn-preview').forEach(btn => {
-            btn.classList.remove('playing');
-            btn.textContent = '预览';
+        document.querySelectorAll('.file-item').forEach(div => {
+            const btn = div.querySelectorAll('.md-icon-btn')[0];
+            if (btn) {
+                btn.innerHTML = '<span class="material-icons-round">play_arrow</span>';
+            }
         });
         
         if (isPlaying && id !== null) {
             const div = document.getElementById('file-' + id);
             if (div) {
-                const btn = div.querySelector('.btn-preview');
+                const btn = div.querySelectorAll('.md-icon-btn')[0];
                 if (btn) {
-                    btn.classList.add('playing');
-                    btn.textContent = '停止';
+                    btn.innerHTML = '<span class="material-icons-round">pause</span>';
                 }
             }
         }
@@ -901,11 +1202,11 @@ const ID3Writer = (function() {
         if (!audio) return;
         if (audio.paused) {
             audio.play();
-            playerPlayBtn.textContent = '⏸';
+            playerPlayBtn.innerHTML = '<span class="material-icons-round">pause</span>';
             updatePreviewButtonState(currentPlayingId, true);
         } else {
             audio.pause();
-            playerPlayBtn.textContent = '▶';
+            playerPlayBtn.innerHTML = '<span class="material-icons-round">play_arrow</span>';
             updatePreviewButtonState(currentPlayingId, false);
         }
     });
