@@ -367,6 +367,7 @@ const NCMDecrypt = (function() {
         
         let songName = 'Unknown';
         let artist = 'Unknown';
+        let album = 'Unknown';
         
         if (metadata) {
             if (metadata.musicName) {
@@ -375,15 +376,20 @@ const NCMDecrypt = (function() {
             if (metadata.artist && metadata.artist.length > 0) {
                 artist = metadata.artist.map(a => a[0]).join(', ');
             }
+            if (metadata.album) {
+                album = metadata.album;
+            }
         }
         
         return {
             audioData: decryptedAudio,
             format: format,
             metadata: metadata,
-            coverImage: coverImage,
+            image: coverImage,
+            imageMime: coverImage ? (coverImage[0] === 0xFF && coverImage[1] === 0xD8 ? 'image/jpeg' : 'image/png') : null,
             songName: songName,
-            artist: artist
+            artist: artist,
+            album: album
         };
     }
     

@@ -162,6 +162,25 @@
                 updateFileItem(fileObj.id, { status: 'processing', progress: progress });
             });
             
+            const tags = {
+                title: result.songName,
+                artist: result.artist,
+                album: result.album
+            };
+            
+            if (result.image) {
+                tags.image = {
+                    imageBuffer: result.image,
+                    mime: result.imageMime || 'image/jpeg',
+                    type: { id: 3, name: 'Front Cover' },
+                    description: ''
+                };
+            }
+            
+            const audioWithTags = ID3Writer.write(tags, result.audioData);
+            
+            result.audioData = audioWithTags;
+            
             fileObj.status = 'success';
             fileObj.result = result;
             stats.success++;
