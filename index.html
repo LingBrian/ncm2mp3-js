@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NCM 转 MP3 转换器</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -27,18 +23,8 @@
             max-width: 600px;
             width: 100%;
         }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
+        h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 28px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
         .drop-zone {
             border: 3px dashed #667eea;
             border-radius: 15px;
@@ -53,27 +39,11 @@
             background: #f0f2ff;
             transform: scale(1.02);
         }
-        .drop-zone-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-        .drop-zone-text {
-            color: #666;
-            font-size: 16px;
-        }
-        .drop-zone-hint {
-            color: #999;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-        #fileInput {
-            display: none;
-        }
-        .file-list {
-            margin-top: 20px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
+        .drop-zone-icon { font-size: 48px; margin-bottom: 15px; }
+        .drop-zone-text { color: #666; font-size: 16px; }
+        .drop-zone-hint { color: #999; font-size: 12px; margin-top: 10px; }
+        #fileInput { display: none; }
+        .file-list { margin-top: 20px; max-height: 300px; overflow-y: auto; }
         .file-item {
             display: flex;
             align-items: center;
@@ -83,23 +53,11 @@
             margin-bottom: 10px;
             transition: all 0.3s ease;
         }
-        .file-item.processing {
-            background: #fff3cd;
-        }
-        .file-item.success {
-            background: #d4edda;
-        }
-        .file-item.error {
-            background: #f8d7da;
-        }
-        .file-icon {
-            font-size: 24px;
-            margin-right: 12px;
-        }
-        .file-info {
-            flex: 1;
-            min-width: 0;
-        }
+        .file-item.processing { background: #fff3cd; }
+        .file-item.success { background: #d4edda; }
+        .file-item.error { background: #f8d7da; }
+        .file-icon { font-size: 24px; margin-right: 12px; }
+        .file-info { flex: 1; min-width: 0; }
         .file-name {
             font-weight: 500;
             color: #333;
@@ -107,15 +65,8 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .file-status {
-            font-size: 12px;
-            color: #666;
-            margin-top: 3px;
-        }
-        .file-actions {
-            display: flex;
-            gap: 8px;
-        }
+        .file-status { font-size: 12px; color: #666; margin-top: 3px; }
+        .file-actions { display: flex; gap: 8px; }
         .btn {
             padding: 8px 16px;
             border: none;
@@ -124,20 +75,10 @@
             font-size: 14px;
             transition: all 0.3s ease;
         }
-        .btn-download {
-            background: #667eea;
-            color: white;
-        }
-        .btn-download:hover {
-            background: #5a6fd6;
-        }
-        .btn-remove {
-            background: #dc3545;
-            color: white;
-        }
-        .btn-remove:hover {
-            background: #c82333;
-        }
+        .btn-download { background: #667eea; color: white; }
+        .btn-download:hover { background: #5a6fd6; }
+        .btn-remove { background: #dc3545; color: white; }
+        .btn-remove:hover { background: #c82333; }
         .progress-bar {
             height: 4px;
             background: #e0e0e0;
@@ -151,33 +92,17 @@
             border-radius: 2px;
             transition: width 0.3s ease;
         }
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            justify-content: center;
-        }
+        .actions { display: flex; gap: 10px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 12px 30px;
             font-size: 16px;
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-            padding: 12px 30px;
-            font-size: 16px;
-        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: #6c757d; color: white; padding: 12px 30px; font-size: 16px; }
+        .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
         .stats {
             display: flex;
             justify-content: center;
@@ -186,18 +111,39 @@
             padding-top: 20px;
             border-top: 1px solid #eee;
         }
-        .stat-item {
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #667eea; }
+        .stat-label { font-size: 12px; color: #999; margin-top: 5px; }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading-content {
+            background: white;
+            padding: 30px 50px;
+            border-radius: 15px;
             text-align: center;
         }
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
-        .stat-label {
-            font-size: 12px;
-            color: #999;
-            margin-top: 5px;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -217,6 +163,7 @@
         
         <div class="actions">
             <button class="btn btn-primary" id="convertBtn" disabled>开始转换</button>
+            <button class="btn btn-secondary" id="downloadAllBtn" disabled>打包下载</button>
             <button class="btn btn-secondary" id="clearBtn" disabled>清空列表</button>
         </div>
         
@@ -236,8 +183,467 @@
         </div>
     </div>
 
-    <script src="ncmDecrypt.js"></script>
-    <script src="id3Writer.js"></script>
-    <script src="app.js"></script>
+<script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+<script>
+const NCMDecrypt = (function() {
+    const coreKey = new Uint8Array([0x68,0x7A,0x48,0x52,0x41,0x6D,0x73,0x6F,0x35,0x6B,0x49,0x6E,0x62,0x61,0x78,0x57]);
+    const metaKey = new Uint8Array([0x23,0x31,0x34,0x6C,0x6A,0x6B,0x5F,0x21,0x5C,0x5D,0x26,0x30,0x55,0x3C,0x27,0x28]);
+    const magicHeader = new Uint8Array([0x43,0x54,0x45,0x4E,0x46,0x44,0x41,0x4D]);
+    const sBox = new Uint8Array([0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76,0xca,0x82,0xc9,0x7d,0xfa,0x59,0x47,0xf0,0xad,0xd4,0xa2,0xaf,0x9c,0xa4,0x72,0xc0,0xb7,0xfd,0x93,0x26,0x36,0x3f,0xf7,0xcc,0x34,0xa5,0xe5,0xf1,0x71,0xd8,0x31,0x15,0x04,0xc7,0x23,0xc3,0x18,0x96,0x05,0x9a,0x07,0x12,0x80,0xe2,0xeb,0x27,0xb2,0x75,0x09,0x83,0x2c,0x1a,0x1b,0x6e,0x5a,0xa0,0x52,0x3b,0xd6,0xb3,0x29,0xe3,0x2f,0x84,0x53,0xd1,0x00,0xed,0x20,0xfc,0xb1,0x5b,0x6a,0xcb,0xbe,0x39,0x4a,0x4c,0x58,0xcf,0xd0,0xef,0xaa,0xfb,0x43,0x4d,0x33,0x85,0x45,0xf9,0x02,0x7f,0x50,0x3c,0x9f,0xa8,0x51,0xa3,0x40,0x8f,0x92,0x9d,0x38,0xf5,0xbc,0xb6,0xda,0x21,0x10,0xff,0xf3,0xd2,0xcd,0x0c,0x13,0xec,0x5f,0x97,0x44,0x17,0xc4,0xa7,0x7e,0x3d,0x64,0x5d,0x19,0x73,0x60,0x81,0x4f,0xdc,0x22,0x2a,0x90,0x88,0x46,0xee,0xb8,0x14,0xde,0x5e,0x0b,0xdb,0xe0,0x32,0x3a,0x0a,0x49,0x06,0x24,0x5c,0xc2,0xd3,0xac,0x62,0x91,0x95,0xe4,0x79,0xe7,0xc8,0x37,0x6d,0x8d,0xd5,0x4e,0xa9,0x6c,0x56,0xf4,0xea,0x65,0x7a,0xae,0x08,0xba,0x78,0x25,0x2e,0x1c,0xa6,0xb4,0xc6,0xe8,0xdd,0x74,0x1f,0x4b,0xbd,0x8b,0x8a,0x70,0x3e,0xb5,0x66,0x48,0x03,0xf6,0x0e,0x61,0x35,0x57,0xb9,0x86,0xc1,0x1d,0x9e,0xe1,0xf8,0x98,0x11,0x69,0xd9,0x8e,0x94,0x9b,0x1e,0x87,0xe9,0xce,0x55,0x28,0xdf,0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16]);
+    const invSBox = new Uint8Array([0x52,0x09,0x6a,0xd5,0x30,0x36,0xa5,0x38,0xbf,0x40,0xa3,0x9e,0x81,0xf3,0xd7,0xfb,0x7c,0xe3,0x39,0x82,0x9b,0x2f,0xff,0x87,0x34,0x8e,0x43,0x44,0xc4,0xde,0xe9,0xcb,0x54,0x7b,0x94,0x32,0xa6,0xc2,0x23,0x3d,0xee,0x4c,0x95,0x0b,0x42,0xfa,0xc3,0x4e,0x08,0x2e,0xa1,0x66,0x28,0xd9,0x24,0xb2,0x76,0x5b,0xa2,0x49,0x6d,0x8b,0xd1,0x25,0x72,0xf8,0xf6,0x64,0x86,0x68,0x98,0x16,0xd4,0xa4,0x5c,0xcc,0x5d,0x65,0xb6,0x92,0x6c,0x70,0x48,0x50,0xfd,0xed,0xb9,0xda,0x5e,0x15,0x46,0x57,0xa7,0x8d,0x9d,0x84,0x90,0xd8,0xab,0x00,0x8c,0xbc,0xd3,0x0a,0xf7,0xe4,0x58,0x05,0xb8,0xb3,0x45,0x06,0xd0,0x2c,0x1e,0x8f,0xca,0x3f,0x0f,0x02,0xc1,0xaf,0xbd,0x03,0x01,0x13,0x8a,0x6b,0x3a,0x91,0x11,0x41,0x4f,0x67,0xdc,0xea,0x97,0xf2,0xcf,0xce,0xf0,0xb4,0xe6,0x73,0x96,0xac,0x74,0x22,0xe7,0xad,0x35,0x85,0xe2,0xf9,0x37,0xe8,0x1c,0x75,0xdf,0x6e,0x47,0xf1,0x1a,0x71,0x1d,0x29,0xc5,0x89,0x6f,0xb7,0x62,0x0e,0xaa,0x18,0xbe,0x1b,0xfc,0x56,0x3e,0x4b,0xc6,0xd2,0x79,0x20,0x9a,0xdb,0xc0,0xfe,0x78,0xcd,0x5a,0xf4,0x1f,0xdd,0xa8,0x33,0x88,0x07,0xc7,0x31,0xb1,0x12,0x10,0x59,0x27,0x80,0xec,0x5f,0x60,0x51,0x7f,0xa9,0x19,0xb5,0x4a,0x0d,0x2d,0xe5,0x7a,0x9f,0x93,0xc9,0x9c,0xef,0xa0,0xe0,0x3b,0x4d,0xae,0x2a,0xf5,0xb0,0xc8,0xeb,0xbb,0x3c,0x83,0x53,0x99,0x61,0x17,0x2b,0x04,0x7e,0xba,0x77,0xd6,0x26,0xe1,0x69,0x14,0x63,0x55,0x21,0x0c,0x7d]);
+    const rcon = new Uint8Array([0x00,0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x1b,0x36]);
+    
+    function xorBytes(data, value) {
+        const result = new Uint8Array(data.length);
+        for (let i = 0; i < data.length; i++) result[i] = data[i] ^ value;
+        return result;
+    }
+    function subWord(word) { return new Uint8Array([sBox[word[0]], sBox[word[1]], sBox[word[2]], sBox[word[3]]]); }
+    function rotWord(word) { return new Uint8Array([word[1], word[2], word[3], word[0]]); }
+    function keyExpansion(key) {
+        const Nk = 4, Nb = 4, Nr = 10;
+        const expandedKey = new Uint8Array(4 * Nb * (Nr + 1));
+        for (let i = 0; i < 4 * Nk; i++) expandedKey[i] = key[i];
+        for (let i = Nk; i < Nb * (Nr + 1); i++) {
+            const temp = new Uint8Array([expandedKey[(i-1)*4], expandedKey[(i-1)*4+1], expandedKey[(i-1)*4+2], expandedKey[(i-1)*4+3]]);
+            if (i % Nk === 0) {
+                const rotated = rotWord(temp), substituted = subWord(rotated);
+                temp[0] = substituted[0] ^ rcon[i/Nk]; temp[1] = substituted[1]; temp[2] = substituted[2]; temp[3] = substituted[3];
+            }
+            expandedKey[i*4] = expandedKey[(i-Nk)*4] ^ temp[0];
+            expandedKey[i*4+1] = expandedKey[(i-Nk)*4+1] ^ temp[1];
+            expandedKey[i*4+2] = expandedKey[(i-Nk)*4+2] ^ temp[2];
+            expandedKey[i*4+3] = expandedKey[(i-Nk)*4+3] ^ temp[3];
+        }
+        return expandedKey;
+    }
+    function addRoundKey(state, roundKey) { for (let i = 0; i < 16; i++) state[i] ^= roundKey[i]; }
+    function invSubBytes(state) { for (let i = 0; i < 16; i++) state[i] = invSBox[state[i]]; }
+    function invShiftRows(state) {
+        const temp = new Uint8Array(16);
+        temp[0]=state[0]; temp[1]=state[13]; temp[2]=state[10]; temp[3]=state[7];
+        temp[4]=state[4]; temp[5]=state[1]; temp[6]=state[14]; temp[7]=state[11];
+        temp[8]=state[8]; temp[9]=state[5]; temp[10]=state[2]; temp[11]=state[15];
+        temp[12]=state[12]; temp[13]=state[9]; temp[14]=state[6]; temp[15]=state[3];
+        for (let i = 0; i < 16; i++) state[i] = temp[i];
+    }
+    function gmul(a, b) { let p = 0; for (let i = 0; i < 8; i++) { if (b & 1) p ^= a; const hiBitSet = a & 0x80; a = (a << 1) & 0xFF; if (hiBitSet) a ^= 0x1b; b >>= 1; } return p; }
+    function invMixColumns(state) {
+        const temp = new Uint8Array(16);
+        for (let c = 0; c < 4; c++) {
+            const i = c * 4;
+            temp[i] = gmul(state[i],14) ^ gmul(state[i+1],11) ^ gmul(state[i+2],13) ^ gmul(state[i+3],9);
+            temp[i+1] = gmul(state[i],9) ^ gmul(state[i+1],14) ^ gmul(state[i+2],11) ^ gmul(state[i+3],13);
+            temp[i+2] = gmul(state[i],13) ^ gmul(state[i+1],9) ^ gmul(state[i+2],14) ^ gmul(state[i+3],11);
+            temp[i+3] = gmul(state[i],11) ^ gmul(state[i+1],13) ^ gmul(state[i+2],9) ^ gmul(state[i+3],14);
+        }
+        for (let i = 0; i < 16; i++) state[i] = temp[i];
+    }
+    function aesDecryptBlock(block, expandedKey) {
+        const state = new Uint8Array(block), Nr = 10;
+        addRoundKey(state, expandedKey.slice(Nr*16, (Nr+1)*16));
+        for (let round = Nr - 1; round >= 1; round--) {
+            invShiftRows(state); invSubBytes(state); addRoundKey(state, expandedKey.slice(round*16, (round+1)*16)); invMixColumns(state);
+        }
+        invShiftRows(state); invSubBytes(state); addRoundKey(state, expandedKey.slice(0, 16));
+        return state;
+    }
+    function aesDecryptECB(encryptedData, key) {
+        const expandedKey = keyExpansion(key);
+        const numBlocks = encryptedData.length / 16;
+        const decrypted = new Uint8Array(encryptedData.length);
+        for (let i = 0; i < numBlocks; i++) {
+            const block = encryptedData.slice(i*16, (i+1)*16);
+            const decryptedBlock = aesDecryptBlock(block, expandedKey);
+            decrypted.set(decryptedBlock, i*16);
+        }
+        return decrypted;
+    }
+    function removePKCS7Padding(data) {
+        const paddingLength = data[data.length - 1];
+        if (paddingLength > 0 && paddingLength <= 16) {
+            let valid = true;
+            for (let i = 1; i <= paddingLength; i++) { if (data[data.length - i] !== paddingLength) { valid = false; break; } }
+            if (valid) return data.slice(0, data.length - paddingLength);
+        }
+        return data;
+    }
+    function readUint32LE(data, offset) { return data[offset] | (data[offset+1] << 8) | (data[offset+2] << 16) | (data[offset+3] << 24); }
+    class CR4 {
+        constructor() { this.box = new Uint8Array(256); }
+        KSA(key) {
+            const len = key.length;
+            for (let i = 0; i < 256; i++) this.box[i] = i;
+            for (let i = 0, j = 0; i < 256; i++) { j = (j + this.box[i] + key[i % len]) & 0xff; [this.box[i], this.box[j]] = [this.box[j], this.box[i]]; }
+        }
+        PRGA(data, length) {
+            for (let k = 0; k < length; k++) { const i = (k + 1) & 0xff; const j = (this.box[i] + i) & 0xff; data[k] ^= this.box[(this.box[i] + this.box[j]) & 0xff]; }
+            return data;
+        }
+    }
+    function detectAudioFormat(data) {
+        if (data[0] === 0x49 && data[1] === 0x44 && data[2] === 0x33) return { ext: 'mp3', mime: 'audio/mpeg' };
+        if (data[0] === 0xFF && (data[1] & 0xE0) === 0xE0) return { ext: 'mp3', mime: 'audio/mpeg' };
+        if (data[0] === 0x66 && data[1] === 0x4C && data[2] === 0x61 && data[3] === 0x43) return { ext: 'flac', mime: 'audio/flac' };
+        if (data.length > 10 && data[4] === 0x66 && data[5] === 0x74 && data[6] === 0x79 && data[7] === 0x70) {
+            if (data[8] === 0x4D && data[9] === 0x34 && data[10] === 0x41) return { ext: 'm4a', mime: 'audio/mp4' };
+            return { ext: 'mp4', mime: 'audio/mp4' };
+        }
+        if (data[0] === 0x4F && data[1] === 0x67 && data[2] === 0x67 && data[3] === 0x53) return { ext: 'ogg', mime: 'audio/ogg' };
+        return { ext: 'mp3', mime: 'audio/mpeg' };
+    }
+    function base64ToUint8Array(base64) {
+        const binaryString = atob(base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+        return bytes;
+    }
+    async function parseNCM(arrayBuffer, onProgress) {
+        const data = new Uint8Array(arrayBuffer);
+        let offset = 0;
+        if (data.length < 10) throw new Error('文件太小，不是有效的 NCM 文件');
+        for (let i = 0; i < 8; i++) { if (data[i] !== magicHeader[i]) throw new Error('不是有效的 NCM 文件格式'); }
+        offset = 8;
+        if (data[8] !== 0x01 || data[9] !== 0x70) throw new Error('不是有效的 NCM 文件格式（版本号错误）');
+        offset = 10;
+        if (offset + 4 > data.length) throw new Error('文件格式错误');
+        const keyDataLength = readUint32LE(data, offset); offset += 4;
+        if (offset + keyDataLength > data.length) throw new Error('文件格式错误：密钥数据不完整');
+        const encryptedKeyData = data.slice(offset, offset + keyDataLength); offset += keyDataLength;
+        const xoredKeyData = xorBytes(encryptedKeyData, 0x64);
+        const decryptedKeyData = aesDecryptECB(xoredKeyData, coreKey);
+        const keyData = removePKCS7Padding(decryptedKeyData);
+        const keyString = new TextDecoder('utf-8').decode(keyData.slice(17));
+        const audioKey = new TextEncoder().encode(keyString);
+        if (onProgress) onProgress(0.2);
+        if (offset + 4 > data.length) throw new Error('文件格式错误');
+        const metaDataLength = readUint32LE(data, offset); offset += 4;
+        let metadata = null;
+        if (metaDataLength > 0) {
+            if (offset + metaDataLength > data.length) throw new Error('文件格式错误：元数据不完整');
+            const encryptedMetaData = data.slice(offset, offset + metaDataLength); offset += metaDataLength;
+            const xoredMetaData = xorBytes(encryptedMetaData, 0x63);
+            const base64String = new TextDecoder('utf-8').decode(xoredMetaData.slice(22));
+            try {
+                const metaBytes = base64ToUint8Array(base64String);
+                const decryptedMeta = aesDecryptECB(metaBytes, metaKey);
+                const metaData = removePKCS7Padding(decryptedMeta);
+                const metaString = new TextDecoder('utf-8').decode(metaData.slice(6));
+                metadata = JSON.parse(metaString);
+            } catch (e) { console.warn('元数据解析失败:', e); }
+        }
+        if (onProgress) onProgress(0.4);
+        offset += 9;
+        if (offset + 4 > data.length) throw new Error('文件格式错误');
+        const imageSize = readUint32LE(data, offset); offset += 4;
+        let coverImage = null;
+        if (imageSize > 0) {
+            if (offset + imageSize > data.length) throw new Error('文件格式错误：封面数据不完整');
+            coverImage = data.slice(offset, offset + imageSize); offset += imageSize;
+        }
+        if (onProgress) onProgress(0.5);
+        const audioData = data.slice(offset);
+        const cr4 = new CR4();
+        cr4.KSA(audioKey);
+        const decryptedAudio = cr4.PRGA(new Uint8Array(audioData), audioData.length);
+        if (onProgress) onProgress(0.9);
+        const format = detectAudioFormat(decryptedAudio);
+        let songName = 'Unknown', artist = 'Unknown', album = 'Unknown';
+        if (metadata) {
+            if (metadata.musicName) songName = metadata.musicName;
+            if (metadata.artist && metadata.artist.length > 0) artist = metadata.artist.map(a => a[0]).join(', ');
+            if (metadata.album) album = metadata.album;
+        }
+        return { audioData: decryptedAudio, format: format, metadata: metadata, image: coverImage, imageMime: coverImage ? (coverImage[0] === 0xFF && coverImage[1] === 0xD8 ? 'image/jpeg' : 'image/png') : null, songName: songName, artist: artist, album: album };
+    }
+    return { parse: parseNCM, detectFormat: detectAudioFormat };
+})();
+
+const ID3Writer = (function() {
+    function encodeSize(size) { const bytes = new Uint8Array(4); bytes[0] = (size >> 21) & 0x7F; bytes[1] = (size >> 14) & 0x7F; bytes[2] = (size >> 7) & 0x7F; bytes[3] = size & 0x7F; return bytes; }
+    function stringToBytes(str, encoding) {
+        if (encoding === 0x01) {
+            const utf16 = []; utf16.push(0xFE, 0xFF);
+            for (let i = 0; i < str.length; i++) { const code = str.charCodeAt(i); utf16.push((code >> 8) & 0xFF); utf16.push(code & 0xFF); }
+            return new Uint8Array(utf16);
+        } else { return new TextEncoder().encode(str); }
+    }
+    function createTextFrame(identifier, text) {
+        const textBytes = stringToBytes(text, 0x01);
+        const frameData = new Uint8Array(1 + textBytes.length); frameData[0] = 0x01; frameData.set(textBytes, 1);
+        const frame = new Uint8Array(10 + frameData.length);
+        const idBytes = new TextEncoder().encode(identifier); frame.set(idBytes, 0);
+        const sizeBytes = new Uint8Array(4); sizeBytes[0] = (frameData.length >> 24) & 0xFF; sizeBytes[1] = (frameData.length >> 16) & 0xFF; sizeBytes[2] = (frameData.length >> 8) & 0xFF; sizeBytes[3] = frameData.length & 0xFF;
+        frame.set(sizeBytes, 4); frame.set(frameData, 10);
+        return frame;
+    }
+    function createAPICFrame(imageBuffer, mimeType, pictureType, description) {
+        mimeType = mimeType || 'image/jpeg'; pictureType = pictureType || 0x03; description = description || '';
+        const mimeBytes = new TextEncoder().encode(mimeType);
+        const descBytes = stringToBytes(description, 0x00);
+        const frameData = new Uint8Array(1 + mimeBytes.length + 1 + 1 + descBytes.length + imageBuffer.length);
+        let offset = 0;
+        frameData[offset++] = 0x00;
+        frameData.set(mimeBytes, offset); offset += mimeBytes.length;
+        frameData[offset++] = 0x00;
+        frameData[offset++] = pictureType;
+        frameData.set(descBytes, offset); offset += descBytes.length;
+        frameData.set(imageBuffer, offset);
+        const frame = new Uint8Array(10 + frameData.length);
+        const idBytes = new TextEncoder().encode('APIC'); frame.set(idBytes, 0);
+        const sizeBytes = new Uint8Array(4); sizeBytes[0] = (frameData.length >> 24) & 0xFF; sizeBytes[1] = (frameData.length >> 16) & 0xFF; sizeBytes[2] = (frameData.length >> 8) & 0xFF; sizeBytes[3] = frameData.length & 0xFF;
+        frame.set(sizeBytes, 4); frame.set(frameData, 10);
+        return frame;
+    }
+    function getMimeType(buffer) {
+        if (buffer.length > 3 && buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) return 'image/jpeg';
+        if (buffer.length > 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) return 'image/png';
+        return 'image/jpeg';
+    }
+    function write(tags, audioData) {
+        const frames = [];
+        if (tags.title) frames.push(createTextFrame('TIT2', tags.title));
+        if (tags.artist) frames.push(createTextFrame('TPE1', tags.artist));
+        if (tags.album) frames.push(createTextFrame('TALB', tags.album));
+        if (tags.year) frames.push(createTextFrame('TYER', tags.year.toString()));
+        if (tags.genre) frames.push(createTextFrame('TCON', tags.genre));
+        if (tags.image && tags.image.imageBuffer) {
+            const mimeType = tags.image.mime || getMimeType(tags.image.imageBuffer);
+            const pictureType = tags.image.type && tags.image.type.id !== undefined ? tags.image.type.id : 0x03;
+            const description = tags.image.description || '';
+            frames.push(createAPICFrame(tags.image.imageBuffer, mimeType, pictureType, description));
+        }
+        const framesData = new Uint8Array(frames.reduce((sum, f) => sum + f.length, 0));
+        let offset = 0;
+        for (const frame of frames) { framesData.set(frame, offset); offset += frame.length; }
+        const header = new Uint8Array(10);
+        header[0] = 0x49; header[1] = 0x44; header[2] = 0x33;
+        header[3] = 0x03; header[4] = 0x00; header[5] = 0x00;
+        header.set(encodeSize(framesData.length), 6);
+        const result = new Uint8Array(10 + framesData.length + audioData.length);
+        result.set(header, 0); result.set(framesData, 10); result.set(audioData, 10 + framesData.length);
+        return result;
+    }
+    return { write: write };
+})();
+
+(function() {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const convertBtn = document.getElementById('convertBtn');
+    const downloadAllBtn = document.getElementById('downloadAllBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const totalCount = document.getElementById('totalCount');
+    const successCount = document.getElementById('successCount');
+    const failCount = document.getElementById('failCount');
+    
+    let files = [];
+    let stats = { total: 0, success: 0, fail: 0 };
+    
+    function updateStats() {
+        totalCount.textContent = stats.total;
+        successCount.textContent = stats.success;
+        failCount.textContent = stats.fail;
+    }
+    
+    function updateButtons() {
+        convertBtn.disabled = files.length === 0;
+        clearBtn.disabled = files.length === 0;
+        downloadAllBtn.disabled = stats.success === 0;
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+    
+    function sanitizeFileName(name) {
+        return name.replace(/[<>:"/\\|?*]/g, '_');
+    }
+    
+    function addFiles(fileArray) {
+        for (const file of fileArray) {
+            if (file.name.toLowerCase().endsWith('.ncm')) {
+                const id = Date.now() + Math.random();
+                files.push({
+                    id: id,
+                    file: file,
+                    status: 'pending',
+                    result: null,
+                    error: null
+                });
+                stats.total++;
+                renderFileItem({
+                    id: id,
+                    name: file.name,
+                    size: file.size,
+                    status: 'pending'
+                });
+            }
+        }
+        updateStats();
+        updateButtons();
+    }
+    
+    function renderFileItem(item) {
+        const div = document.createElement('div');
+        div.className = 'file-item';
+        div.id = 'file-' + item.id;
+        div.innerHTML = `
+            <div class="file-icon">🎵</div>
+            <div class="file-info">
+                <div class="file-name" title="${item.name}">${item.name}</div>
+                <div class="file-status">${formatFileSize(item.size)} - 等待转换</div>
+                <div class="progress-bar" style="display: none;">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="file-actions">
+                <button class="btn btn-download" style="display: none;">下载</button>
+                <button class="btn btn-remove">删除</button>
+            </div>
+        `;
+        div.querySelector('.btn-remove').addEventListener('click', () => { removeFile(item.id); });
+        fileList.appendChild(div);
+    }
+    
+    function updateFileItem(id, updates) {
+        const div = document.getElementById('file-' + id);
+        if (!div) return;
+        const statusEl = div.querySelector('.file-status');
+        const progressBar = div.querySelector('.progress-bar');
+        const progressFill = div.querySelector('.progress-fill');
+        const downloadBtn = div.querySelector('.btn-download');
+        if (updates.status === 'processing') {
+            div.className = 'file-item processing';
+            statusEl.textContent = '正在转换...';
+            progressBar.style.display = 'block';
+            if (updates.progress !== undefined) progressFill.style.width = (updates.progress * 100) + '%';
+        } else if (updates.status === 'success') {
+            div.className = 'file-item success';
+            statusEl.textContent = `转换成功 - ${updates.format.toUpperCase()} (${formatFileSize(updates.size)})`;
+            progressBar.style.display = 'none';
+            downloadBtn.style.display = 'block';
+            downloadBtn.onclick = () => downloadFile(id);
+        } else if (updates.status === 'error') {
+            div.className = 'file-item error';
+            statusEl.textContent = '转换失败: ' + updates.error;
+            progressBar.style.display = 'none';
+        }
+    }
+    
+    function removeFile(id) {
+        const index = files.findIndex(f => f.id === id);
+        if (index !== -1) {
+            const file = files[index];
+            if (file.status === 'success') stats.success--;
+            else if (file.status === 'error') stats.fail--;
+            else stats.total--;
+            files.splice(index, 1);
+        }
+        const div = document.getElementById('file-' + id);
+        if (div) div.remove();
+        updateStats();
+        updateButtons();
+    }
+    
+    function downloadFile(id) {
+        const file = files.find(f => f.id === id);
+        if (!file || !file.result) return;
+        const blob = new Blob([file.result.audioData], { type: file.result.format.mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const songName = sanitizeFileName(file.result.songName);
+        const artist = sanitizeFileName(file.result.artist);
+        a.download = `${artist} - ${songName}.${file.result.format.ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    
+    async function downloadAll() {
+        const successFiles = files.filter(f => f.status === 'success' && f.result);
+        if (successFiles.length === 0) return;
+        downloadAllBtn.disabled = true;
+        downloadAllBtn.textContent = '打包中...';
+        try {
+            const zip = new JSZip();
+            for (const fileObj of successFiles) {
+                const songName = sanitizeFileName(fileObj.result.songName);
+                const artist = sanitizeFileName(fileObj.result.artist);
+                const fileName = `${artist} - ${songName}.${fileObj.result.format.ext}`;
+                zip.file(fileName, fileObj.result.audioData);
+            }
+            const content = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ncm_converted_${Date.now()}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (error) {
+            console.error('打包下载失败:', error);
+            alert('打包下载失败: ' + error.message);
+        } finally {
+            downloadAllBtn.disabled = false;
+            downloadAllBtn.textContent = '打包下载';
+        }
+    }
+    
+    async function convertFile(fileObj) {
+        updateFileItem(fileObj.id, { status: 'processing', progress: 0 });
+        try {
+            const arrayBuffer = await fileObj.file.arrayBuffer();
+            const result = await NCMDecrypt.parse(arrayBuffer, (progress) => { updateFileItem(fileObj.id, { status: 'processing', progress: progress }); });
+            const tags = { title: result.songName, artist: result.artist, album: result.album };
+            if (result.image) {
+                tags.image = { imageBuffer: result.image, mime: result.imageMime || 'image/jpeg', type: { id: 3, name: 'Front Cover' }, description: '' };
+            }
+            const audioWithTags = ID3Writer.write(tags, result.audioData);
+            result.audioData = audioWithTags;
+            fileObj.status = 'success';
+            fileObj.result = result;
+            stats.success++;
+            updateFileItem(fileObj.id, { status: 'success', format: result.format.ext, size: result.audioData.length });
+            return true;
+        } catch (error) {
+            console.error('转换失败:', error);
+            fileObj.status = 'error';
+            fileObj.error = error.message;
+            stats.fail++;
+            updateFileItem(fileObj.id, { status: 'error', error: error.message });
+            return false;
+        }
+    }
+    
+    async function convertAll() {
+        convertBtn.disabled = true;
+        for (const fileObj of files) {
+            if (fileObj.status === 'pending') { await convertFile(fileObj); updateStats(); }
+        }
+        updateButtons();
+    }
+    
+    function clearAll() {
+        files = []; fileList.innerHTML = ''; stats = { total: 0, success: 0, fail: 0 };
+        updateStats(); updateButtons();
+    }
+    
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); });
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); addFiles(e.dataTransfer.files); });
+    fileInput.addEventListener('change', (e) => { addFiles(e.target.files); fileInput.value = ''; });
+    convertBtn.addEventListener('click', convertAll);
+    downloadAllBtn.addEventListener('click', downloadAll);
+    clearBtn.addEventListener('click', clearAll);
+})();
+</script>
 </body>
 </html>
