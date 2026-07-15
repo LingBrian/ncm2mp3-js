@@ -533,31 +533,152 @@
             to { transform: scale(4); opacity: 0; }
         }
         
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            background: var(--md-sys-color-surface-container-highest);
+            border-radius: var(--md-sys-shape-corner-large);
+            padding: 4px;
+            margin: 0 auto 32px;
+            max-width: 360px;
+        }
+        
+        .tab-item {
+            flex: 1;
+            height: 40px;
+            border: none;
+            border-radius: var(--md-sys-shape-corner-large);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: var(--md-sys-typescale-label-large);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: transparent;
+            color: var(--md-sys-color-on-surface-variant);
+            transition: all var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .tab-item.active {
+            background: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+            box-shadow: 0 1px 3px rgba(103, 80, 164, 0.3);
+        }
+        
+        .tab-item .material-icons-round { font-size: 18px; }
+        
+        .ekey-section {
+            display: none;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: var(--md-sys-color-surface-container-high);
+            border-radius: var(--md-sys-shape-corner-medium);
+        }
+        
+        .ekey-section.visible { display: block; }
+        
+        .ekey-section label {
+            display: block;
+            font-size: var(--md-sys-typescale-label-large);
+            font-weight: 500;
+            color: var(--md-sys-color-on-surface);
+            margin-bottom: 8px;
+        }
+        
+        .ekey-section input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--md-sys-color-outline);
+            border-radius: var(--md-sys-shape-corner-small);
+            font-size: var(--md-sys-typescale-body-medium);
+            font-family: monospace;
+            outline: none;
+            background: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+            transition: border-color var(--md-sys-motion-duration-medium);
+        }
+        
+        .ekey-section input:focus {
+            border-color: var(--md-sys-color-primary);
+            border-width: 2px;
+            padding: 11px 15px;
+        }
+        
+        .ekey-hint {
+            font-size: var(--md-sys-typescale-body-small);
+            color: var(--md-sys-color-on-surface-variant);
+            margin-top: 8px;
+        }
+        
+        .ekey-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .ekey-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--md-sys-color-primary);
+        }
+        
+        .ekey-toggle label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+        
         @media (max-width: 480px) {
             body { padding: 16px; }
             .main-card { padding: 16px; }
             .app-title { font-size: var(--md-sys-typescale-headline-medium); }
             .stats { gap: 16px; }
             .file-actions { flex-wrap: wrap; }
+            .tab-bar { max-width: 280px; }
         }
     </style>
 </head>
 <body>
     <header class="app-header">
         <div class="app-icon">
-            <span class="material-icons-round">music_note</span>
+            <span class="material-icons-round" id="appIcon">music_note</span>
         </div>
-        <h1 class="app-title">NCM 转 MP3</h1>
-        <p class="app-subtitle">网易云音乐 NCM 格式解密转换工具（纯浏览器端）</p>
+        <h1 class="app-title" id="appTitle">NCM 转 MP3</h1>
+        <p class="app-subtitle" id="appSubtitle">网易云音乐 NCM 格式解密转换工具（纯浏览器端）</p>
     </header>
     
+    <div class="tab-bar">
+        <button class="tab-item active" data-tab="ncm">
+            <span class="material-icons-round">cloud_download</span>
+            网易云 NCM
+        </button>
+        <button class="tab-item" data-tab="qmc">
+            <span class="material-icons-round">headphones</span>
+            QQ音乐 QMC
+        </button>
+    </div>
+    
     <main class="main-card">
+        <div class="ekey-section" id="ekeySection">
+            <label for="ekeyInput">加密密钥 (ekey)</label>
+            <input type="password" id="ekeyInput" placeholder="输入 ekey（Base64 字符串）">
+            <div class="ekey-toggle">
+                <input type="checkbox" id="showEkey">
+                <label for="showEkey">显示密钥</label>
+            </div>
+            <div class="ekey-hint">此文件需要手动输入 ekey，请使用 ekey-getter 工具获取</div>
+        </div>
+        
         <div class="drop-zone" id="dropZone">
             <div class="drop-zone-icon">
                 <span class="material-icons-round">folder_open</span>
             </div>
-            <div class="drop-zone-text">拖拽 NCM 文件到这里，或点击选择</div>
-            <div class="drop-zone-hint">支持批量转换，所有操作在本地完成</div>
+            <div class="drop-zone-text" id="dropZoneText">拖拽 NCM 文件到这里，或点击选择</div>
+            <div class="drop-zone-hint" id="dropZoneHint">支持批量转换，所有操作在本地完成</div>
         </div>
         <input type="file" id="fileInput" multiple accept=".ncm">
         
@@ -621,6 +742,362 @@
 
 <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
+// ===========================================================================
+// QMC Decoder – QQ Music encrypted audio decryption
+// ===========================================================================
+const QMCDecoder = (function() {
+    // QMC1 key table
+    const KEY_TABLE = [
+        0xc3,0x4a,0xd6,0xca,0x90,0x67,0xf7,0x52,0xd8,0xa1,0x66,0x62,0x9f,0x5b,0x09,0x00,
+        0xc3,0x5e,0x95,0x23,0x9f,0x13,0x11,0x7e,0xd8,0x92,0x3f,0xbc,0x90,0xbb,0x74,0x0e,
+        0xc3,0x47,0x74,0x3d,0x90,0xaa,0x3f,0x51,0xd8,0xf4,0x11,0x84,0x9f,0xde,0x95,0x1d,
+        0xc3,0xc6,0x09,0xd5,0x9f,0xfa,0x66,0xf9,0xd8,0xf0,0xf7,0xa0,0x90,0xa1,0xd6,0xf3,
+    ];
+
+    function qmc1GetMask(offset) {
+        let index = (offset % 0x7fff) & 0x7f;
+        index = index > 0x3f ? (0x80 - index) & 0x3f : index;
+        return KEY_TABLE[index];
+    }
+    function qmc1Decrypt(data) {
+        for (let i = 0; i < data.length; i++) data[i] ^= qmc1GetMask(i);
+    }
+
+    // TC-TEA (16 rounds, big-endian CBC)
+    const TEA_DELTA = 0x9e3779b9;
+    const TEA_ROUNDS = 16;
+    const SALT_LEN = 2;
+    const ZERO_LEN = 7;
+    const FIXED_PADDING_LEN = 1 + SALT_LEN + ZERO_LEN;
+
+    function add32(a, b) { return (a + b) >>> 0; }
+    function sub32(a, b) { return (a - b) >>> 0; }
+    function mul32(a, b) { return Math.imul(a, b) >>> 0; }
+    function readU32BE(buf, off) { return ((buf[off] << 24) | (buf[off + 1] << 16) | (buf[off + 2] << 8) | buf[off + 3]) >>> 0; }
+    function writeU32BE(buf, off, v) { v >>>= 0; buf[off] = (v >>> 24) & 0xff; buf[off+1] = (v >>> 16) & 0xff; buf[off+2] = (v >>> 8) & 0xff; buf[off+3] = v & 0xff; }
+    function readU64BE(buf, off) { return { hi: readU32BE(buf, off), lo: readU32BE(buf, off + 4) }; }
+    function writeU64BE(buf, off, hi, lo) { writeU32BE(buf, off, hi); writeU32BE(buf, off + 4, lo); }
+    function xor64(a, b) { return { hi: (a.hi ^ b.hi) >>> 0, lo: (a.lo ^ b.lo) >>> 0 }; }
+    function ecbSingleRound(value, sum, k1, k2) {
+        const left = add32((value << 4) >>> 0, k1);
+        const right = add32(value >>> 5, k2);
+        return (left ^ add32(value, sum) ^ right) >>> 0;
+    }
+    function teaDecryptBlock(v0, v1, k) {
+        let y = v0 >>> 0, z = v1 >>> 0, sum = mul32(TEA_DELTA, TEA_ROUNDS);
+        for (let i = 0; i < TEA_ROUNDS; i++) {
+            z = sub32(z, ecbSingleRound(y, sum, k[2], k[3]));
+            y = sub32(y, ecbSingleRound(z, sum, k[0], k[1]));
+            sum = sub32(sum, TEA_DELTA);
+        }
+        return [y >>> 0, z >>> 0];
+    }
+    function parseTeaKey(key) {
+        if (key.length < 16) return null;
+        return [readU32BE(key, 0), readU32BE(key, 4), readU32BE(key, 8), readU32BE(key, 12)];
+    }
+    function teaDecrypt(ciphertext, key) {
+        const k = parseTeaKey(key);
+        if (!k) return null;
+        const inputLen = ciphertext.length;
+        if (inputLen < FIXED_PADDING_LEN || inputLen % 8 !== 0) return null;
+        const plain = new Uint8Array(inputLen);
+        let iv1 = { hi: 0, lo: 0 }, iv2 = { hi: 0, lo: 0 };
+        for (let i = 0; i < inputLen; i += 8) {
+            const cb = readU64BE(ciphertext, i);
+            const r = xor64(cb, iv2);
+            const db = teaDecryptBlock(r.hi, r.lo, k);
+            const pb = xor64({ hi: db[0], lo: db[1] }, iv1);
+            writeU64BE(plain, i, pb.hi, pb.lo);
+            iv1 = cb;
+            iv2 = { hi: db[0], lo: db[1] };
+        }
+        const padSize = plain[0] & 0b111;
+        const startLoc = 1 + padSize + SALT_LEN;
+        const endLoc = inputLen - ZERO_LEN;
+        for (let i = endLoc; i < inputLen; i++) { if (plain[i] !== 0) return null; }
+        return plain.slice(startLoc, endLoc);
+    }
+
+    // QMC2 – ekey parsing
+    const QMC2_ENCV2_PREFIX = 'QQMusic EncV2,Key:';
+    const QMC2_ENCV2_STAGE1_KEY = new TextEncoder().encode('386ZJY!@#*$%^&)(');
+    const QMC2_ENCV2_STAGE2_KEY = new TextEncoder().encode('**#!(#$%&^a1cZ,T');
+
+    function b64decode(s) { return Uint8Array.from(atob(s.replace(/\0/g, '')), c => c.charCodeAt(0)); }
+    function b64encode(buf) {
+        let s = '';
+        for (let i = 0; i < buf.length; i++) s += String.fromCharCode(buf[i]);
+        return btoa(s);
+    }
+    function concatU8(a, b) { const r = new Uint8Array(a.length + b.length); r.set(a); r.set(b, a.length); return r; }
+    function u8Equals(a, b) { if (a.length !== b.length) return false; for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false; return true; }
+    function simpleMakeKey(seed, size) {
+        const r = new Uint8Array(size);
+        for (let i = 0; i < size; i++) r[i] = Math.floor(Math.abs(100 * Math.tan(seed + i * 0.1))) & 0xff;
+        return r;
+    }
+    function deriveTeaKey(ekeyHeader) {
+        const sk = simpleMakeKey(106, 8);
+        const tk = new Uint8Array(16);
+        for (let i = 0; i < 16; i += 2) { tk[i] = sk[i / 2]; tk[i + 1] = ekeyHeader[i / 2]; }
+        return tk;
+    }
+    function parseEkey(ekey) {
+        const ekeyDecoded = b64decode(ekey);
+        if (ekeyDecoded.length === 0) throw new Error('密钥太短');
+        let encV1Key = ekeyDecoded;
+        const prefix = new TextEncoder().encode(QMC2_ENCV2_PREFIX);
+        if (ekeyDecoded.length >= prefix.length && u8Equals(ekeyDecoded.subarray(0, prefix.length), prefix)) {
+            const encV2Blob = ekeyDecoded.subarray(prefix.length);
+            const stage1 = teaDecrypt(encV2Blob, QMC2_ENCV2_STAGE1_KEY);
+            if (!stage1) throw new Error('EncV2 第一阶段解密失败');
+            const stage2 = teaDecrypt(stage1, QMC2_ENCV2_STAGE2_KEY);
+            if (!stage2) throw new Error('EncV2 第二阶段解密失败');
+            encV1Key = b64decode(new TextDecoder().decode(stage2));
+        }
+        if (encV1Key.length < 8) throw new Error('密钥太短');
+        const header = encV1Key.subarray(0, 8);
+        const body = encV1Key.subarray(8);
+        if (body.length === 0) return new Uint8Array(header);
+        const teaKey = deriveTeaKey(header);
+        const decryptedBody = teaDecrypt(body, teaKey);
+        if (decryptedBody) return concatU8(header, decryptedBody);
+        return new Uint8Array(encV1Key);
+    }
+
+    // QMC2 Map cipher
+    const FIRST_SEGMENT_SIZE = 0x80;
+    const OTHER_SEGMENT_SIZE = 0x1400;
+
+    function scrambleByIndex(value, index) {
+        const rotation = ((index + 4) & 0b111) >>> 0;
+        return ((value << rotation) | (value >>> rotation)) & 0xff;
+    }
+    function mapL(key, offset) {
+        let off = offset;
+        if (off > 0x7fff) off %= 0x7fff;
+        const idx = (off * off + 71214) % key.length;
+        return scrambleByIndex(key[idx], idx);
+    }
+    function qmc2MapDecrypt(key, offset, buf) {
+        for (let i = 0; i < buf.length; i++) buf[i] ^= mapL(key, offset + i);
+    }
+
+    // QMC2 RC4 cipher
+    function rc4CalcHashBase(data) {
+        let hash = 1;
+        for (const byte of data) {
+            const val = byte >>> 0;
+            if (val === 0) continue;
+            const next = Math.imul(hash, val) >>> 0;
+            if (next === 0 || next <= hash) break;
+            hash = next;
+        }
+        return hash >>> 0;
+    }
+    function rc4InitSBox(key) {
+        const n = key.length;
+        let s;
+        if (n > 256) { s = Array.from({ length: 256 }, (_, i) => i); for (let i = 0; i < n - 256; i++) s.push(i % 256); }
+        else { s = Array.from({ length: n }, (_, i) => i); }
+        let j = 0;
+        for (let i = 0; i < n; i++) { j = (j + s[i] + key[i]) % n; [s[i], s[j]] = [s[j], s[i]]; }
+        return s;
+    }
+    function rc4CalcSegmentKey(hash, id, seed) {
+        const divisor = (id + 1) * seed;
+        if (divisor === 0) return 0;
+        const key = hash / divisor * 100.0;
+        return isFinite(key) ? Math.floor(key) : 0;
+    }
+    function rc4Derive(n, s, j, k) {
+        j.val = (j.val + 1) % n;
+        k.val = (s[j.val] + k.val) % n;
+        [s[j.val], s[k.val]] = [s[k.val], s[j.val]];
+        return s[(s[j.val] + s[k.val]) % n];
+    }
+    function rc4EncodeFirstSegment(rc4Key, hash, offset, buf) {
+        const n = rc4Key.length;
+        for (let i = 0; i < buf.length; i++) {
+            buf[i] ^= rc4Key[rc4CalcSegmentKey(hash, offset + i, rc4Key[(offset + i) % n]) % n];
+        }
+    }
+    function rc4EncodeOtherSegment(rc4Key, hash, sBox, offset, buf) {
+        const segId = Math.floor(offset / OTHER_SEGMENT_SIZE);
+        let discardCount = rc4CalcSegmentKey(hash, segId, rc4Key[segId & 0x1ff]) & 0x1ff;
+        discardCount += offset % OTHER_SEGMENT_SIZE;
+        const n = rc4Key.length;
+        const s = sBox.slice();
+        const j = { val: 0 }, k = { val: 0 };
+        for (let i = 0; i < discardCount; i++) rc4Derive(n, s, j, k);
+        for (let i = 0; i < buf.length; i++) buf[i] ^= rc4Derive(n, s, j, k);
+    }
+    function qmc2Rc4Decrypt(rc4Key, hash, sBox, offset, buf) {
+        let off = offset, remaining = buf.length, pos = 0;
+        if (off < FIRST_SEGMENT_SIZE) {
+            const len = Math.min(remaining, FIRST_SEGMENT_SIZE - off);
+            rc4EncodeFirstSegment(rc4Key, hash, off, buf.subarray(pos, pos + len));
+            pos += len; remaining -= len; off += len;
+        }
+        const toAlign = off % OTHER_SEGMENT_SIZE;
+        if (toAlign !== 0) {
+            const len = Math.min(remaining, OTHER_SEGMENT_SIZE - toAlign);
+            rc4EncodeOtherSegment(rc4Key, hash, sBox, off, buf.subarray(pos, pos + len));
+            pos += len; remaining -= len; off += len;
+        }
+        while (remaining > OTHER_SEGMENT_SIZE) {
+            rc4EncodeOtherSegment(rc4Key, hash, sBox, off, buf.subarray(pos, pos + OTHER_SEGMENT_SIZE));
+            pos += OTHER_SEGMENT_SIZE; remaining -= OTHER_SEGMENT_SIZE; off += OTHER_SEGMENT_SIZE;
+        }
+        if (remaining > 0) rc4EncodeOtherSegment(rc4Key, hash, sBox, off, buf.subarray(pos, pos + remaining));
+    }
+
+    // Footer detection
+    function readU16LE(buf, off) { return buf[off] | (buf[off + 1] << 8); }
+    function readU32LE_qmc(buf, off) { return buf[off] | (buf[off + 1] << 8) | (buf[off + 2] << 16) | (buf[off + 3] << 24); }
+    function readU32BE_qmc(buf, off) { return ((buf[off] << 24) | (buf[off + 1] << 16) | (buf[off + 2] << 8) | buf[off + 3]) >>> 0; }
+    function u8IndexOf(a, val) { for (let i = 0; i < a.length; i++) if (a[i] === val) return i; return -1; }
+    function readUtf16LeString(data, offset, maxLen) {
+        let r = '';
+        const end = Math.min(offset + maxLen, data.length);
+        for (let i = offset; i + 1 < end; i += 2) { const c = readU16LE(data, i); if (c === 0) break; r += String.fromCharCode(c); }
+        return r;
+    }
+    function detectFooter(data) {
+        if (data.length < 8) return { type: 'Unknown' };
+        const last4 = readU32LE_qmc(data, data.length - 4);
+        if (data.length >= 16) {
+            const m = data.subarray(data.length - 8);
+            if (m[0]===0x6d && m[1]===0x75 && m[2]===0x73 && m[3]===0x69 && m[4]===0x63 && m[5]===0x65 && m[6]===0x78 && m[7]===0x00) {
+                const version = readU32LE_qmc(data, data.length - 12);
+                const footerSize = readU32LE_qmc(data, data.length - 16);
+                const metaSize = footerSize - 16;
+                if (version === 1 && metaSize > 0 && metaSize <= data.length - 16) {
+                    const fs = data.length - footerSize;
+                    const songId = readU32LE_qmc(data, fs);
+                    const mid = readUtf16LeString(data, fs + 0x0c, 60);
+                    const filename = readUtf16LeString(data, fs + 0x48, 68);
+                    return { type: 'Musicex', songId, mid, filename };
+                }
+            }
+        }
+        if (last4 === 0x67615451) {
+            if (data.length >= 12) {
+                const metaSizeBE = readU32BE_qmc(data, data.length - 8);
+                const metaEnd = data.length - 8;
+                const metaStart = Math.max(0, metaEnd - metaSizeBE);
+                const meta = data.subarray(metaStart, metaEnd);
+                const commaPos = u8IndexOf(meta, 44);
+                if (commaPos !== -1) {
+                    const ekey = new TextDecoder().decode(meta.subarray(0, commaPos));
+                    const rest = meta.subarray(commaPos + 1);
+                    const comma2Pos = u8IndexOf(rest, 44);
+                    if (comma2Pos !== -1) {
+                        const songId = new TextDecoder().decode(rest.subarray(0, comma2Pos));
+                        return { type: 'QTag', ekey, songId };
+                    }
+                }
+            }
+        }
+        if (last4 > 0 && last4 <= 0x400) return { type: 'V1', keySize: last4 };
+        return { type: 'Unknown' };
+    }
+
+    // Format map
+    const FORMATS = {
+        qmc0:{type:'qmc1',ext:'mp3'}, qmc2:{type:'qmc1',ext:'ogg'}, qmc3:{type:'qmc1',ext:'mp3'},
+        qmcflac:{type:'qmc1',ext:'flac'}, qmcogg:{type:'qmc1',ext:'ogg'},
+        mgg:{type:'qmc2',ext:'ogg'}, mgg0:{type:'qmc2',ext:'ogg'}, mgg1:{type:'qmc2',ext:'ogg'},
+        mggl:{type:'qmc2',ext:'ogg'},
+        mflac:{type:'qmc2',ext:'flac'}, mflac0:{type:'qmc2',ext:'flac'}, mflach:{type:'qmc2',ext:'flac'},
+    };
+    function getFormatInfo(ext) { return FORMATS[ext.toLowerCase()] || null; }
+    function getExt(filename) { const i = filename.lastIndexOf('.'); return i >= 0 ? filename.slice(i + 1) : ''; }
+    function getBaseName(filename) { const i = filename.lastIndexOf('.'); return i >= 0 ? filename.slice(0, i) : filename; }
+
+    // Resolve ekey from footer
+    function resolveEkey(data, footer, userEkey) {
+        switch (footer.type) {
+            case 'QTag': {
+                const metaSizeBE = readU32BE_qmc(data, data.length - 8);
+                return { ekeyStr: footer.ekey, audioLen: data.length - 8 - metaSizeBE };
+            }
+            case 'V1': {
+                const keyStart = data.length - 4 - footer.keySize;
+                const keyBytes = data.subarray(keyStart, data.length - 4);
+                return { ekeyStr: b64encode(keyBytes), audioLen: keyStart };
+            }
+            case 'Musicex': {
+                let audioLen = data.length;
+                if (data.length >= 16) {
+                    const m = data.subarray(data.length - 8);
+                    if (m[0]===0x6d && m[1]===0x75 && m[2]===0x73 && m[3]===0x69 && m[4]===0x63 && m[5]===0x65 && m[6]===0x78 && m[7]===0x00) {
+                        audioLen = data.length - readU32LE_qmc(data, data.length - 16);
+                    }
+                }
+                if (userEkey) return { ekeyStr: userEkey, audioLen };
+                throw new Error(`此文件使用 musicex 格式（songId=${footer.songId}），未嵌入 ekey，请手动输入。`);
+            }
+            default:
+                if (userEkey) return { ekeyStr: userEkey, audioLen: data.length };
+                throw new Error('无法检测文件尾部格式，也未提供 ekey。');
+        }
+    }
+
+    // Main decrypt
+    async function parseQMC(arrayBuffer, ext, ekey, onProgress) {
+        const data = new Uint8Array(arrayBuffer);
+        if (onProgress) onProgress(0.1);
+        const fmt = getFormatInfo(ext);
+        if (!fmt) throw new Error('不支持的格式: .' + ext);
+        if (onProgress) onProgress(0.2);
+        const footer = detectFooter(data);
+        if (fmt.type === 'qmc1') {
+            let decryptedLen = data.length;
+            if (footer.type === 'V1') decryptedLen = data.length - 4 - footer.keySize;
+            const encrypted = data.subarray(0, decryptedLen);
+            const decrypted = new Uint8Array(encrypted);
+            if (onProgress) onProgress(0.5);
+            qmc1Decrypt(decrypted);
+            if (onProgress) onProgress(0.9);
+            return { audioData: decrypted, format: { ext: fmt.ext, mime: getMimeFromExt(fmt.ext) }, footer, ekeyNeeded: false };
+        }
+        if (fmt.type === 'qmc2') {
+            const { ekeyStr, audioLen } = resolveEkey(data, footer, ekey);
+            if (onProgress) onProgress(0.3);
+            const encrypted = data.subarray(0, audioLen);
+            const decrypted = new Uint8Array(encrypted);
+            const qmc2Key = parseEkey(ekeyStr);
+            if (onProgress) onProgress(0.5);
+            if (qmc2Key.length > 300) {
+                const hash = rc4CalcHashBase(qmc2Key);
+                const sBox = rc4InitSBox(qmc2Key);
+                qmc2Rc4Decrypt(qmc2Key, hash, sBox, 0, decrypted);
+            } else {
+                qmc2MapDecrypt(qmc2Key, 0, decrypted);
+            }
+            if (onProgress) onProgress(0.9);
+            return { audioData: decrypted, format: { ext: fmt.ext, mime: getMimeFromExt(fmt.ext) }, footer, ekeyNeeded: false };
+        }
+        throw new Error('未知格式类型');
+    }
+
+    function getMimeFromExt(ext) {
+        const mimes = { mp3: 'audio/mpeg', ogg: 'audio/ogg', flac: 'audio/flac', m4a: 'audio/mp4' };
+        return mimes[ext] || 'audio/mpeg';
+    }
+
+    function detectQMCType(data, ext) {
+        const fmt = getFormatInfo(ext);
+        if (!fmt) return null;
+        const footer = detectFooter(data);
+        return { format: fmt, footer, needsEkey: footer.type === 'Musicex' };
+    }
+
+    return { parse: parseQMC, detectType: detectQMCType, getFormatInfo, getExt, FORMATS };
+})();
+
 const NCMDecrypt = (function() {
     const coreKey = new Uint8Array([0x68,0x7A,0x48,0x52,0x41,0x6D,0x73,0x6F,0x35,0x6B,0x49,0x6E,0x62,0x61,0x78,0x57]);
     const metaKey = new Uint8Array([0x23,0x31,0x34,0x6C,0x6A,0x6B,0x5F,0x21,0x5C,0x5D,0x26,0x30,0x55,0x3C,0x27,0x28]);
@@ -864,6 +1341,9 @@ const ID3Writer = (function() {
 })();
 
 (function() {
+    const NCM_EXTS = ['.ncm'];
+    const QMC_EXTS = ['.qmc0','.qmc2','.qmc3','.qmcflac','.qmcogg','.mgg','.mgg0','.mgg1','.mggl','.mflac','.mflac0','.mflach'];
+    
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const fileList = document.getElementById('fileList');
@@ -873,9 +1353,47 @@ const ID3Writer = (function() {
     const totalCount = document.getElementById('totalCount');
     const successCount = document.getElementById('successCount');
     const failCount = document.getElementById('failCount');
+    const appTitle = document.getElementById('appTitle');
+    const appSubtitle = document.getElementById('appSubtitle');
+    const appIcon = document.getElementById('appIcon');
+    const dropZoneText = document.getElementById('dropZoneText');
+    const dropZoneHint = document.getElementById('dropZoneHint');
+    const ekeySection = document.getElementById('ekeySection');
+    const ekeyInput = document.getElementById('ekeyInput');
+    const showEkey = document.getElementById('showEkey');
     
+    let currentMode = 'ncm';
     let files = [];
     let stats = { total: 0, success: 0, fail: 0 };
+    let pendingMusicexCount = 0;
+    
+    const tabItems = document.querySelectorAll('.tab-item');
+    
+    function switchMode(mode) {
+        currentMode = mode;
+        tabItems.forEach(t => t.classList.toggle('active', t.dataset.tab === mode));
+        clearAll();
+        if (mode === 'ncm') {
+            appTitle.textContent = 'NCM 转 MP3';
+            appSubtitle.textContent = '网易云音乐 NCM 格式解密转换工具（纯浏览器端）';
+            appIcon.textContent = 'cloud_download';
+            dropZoneText.textContent = '拖拽 NCM 文件到这里，或点击选择';
+            dropZoneHint.textContent = '支持批量转换，所有操作在本地完成';
+            fileInput.accept = '.ncm';
+        } else {
+            appTitle.textContent = 'QQ音乐 解密';
+            appSubtitle.textContent = 'QQ音乐加密音频解密工具（支持 qmc/mgg/mflac 格式）';
+            appIcon.textContent = 'headphones';
+            dropZoneText.textContent = '拖拽 QQ 音乐加密文件到这里，或点击选择';
+            dropZoneHint.textContent = '支持 .qmc0 .qmc3 .qmcflac .mgg .mflac 等格式';
+            fileInput.accept = QMC_EXTS.join(',');
+        }
+        ekeySection.classList.remove('visible');
+    }
+    
+    tabItems.forEach(t => t.addEventListener('click', () => switchMode(t.dataset.tab)));
+    
+    showEkey.addEventListener('change', () => { ekeyInput.type = showEkey.checked ? 'text' : 'password'; });
     
     function updateStats() {
         totalCount.textContent = stats.total;
@@ -899,40 +1417,82 @@ const ID3Writer = (function() {
         return name.replace(/[<>:"/\\|?*]/g, '_');
     }
     
-    function addFiles(fileArray) {
+    function getExtLower(filename) {
+        const i = filename.lastIndexOf('.');
+        return i >= 0 ? filename.slice(i).toLowerCase() : '';
+    }
+    
+    function isNCMFile(filename) {
+        return getExtLower(filename) === '.ncm';
+    }
+    
+    function isQMCFile(filename) {
+        return QMC_EXTS.includes(getExtLower(filename));
+    }
+    
+    function isAcceptedFile(filename) {
+        if (currentMode === 'ncm') return isNCMFile(filename);
+        return isQMCFile(filename);
+    }
+    
+    async function addFiles(fileArray) {
         for (const file of fileArray) {
-            if (file.name.toLowerCase().endsWith('.ncm')) {
+            if (isAcceptedFile(file.name)) {
                 const id = Date.now() + Math.random();
-                files.push({
+                const fileType = isNCMFile(file.name) ? 'ncm' : 'qmc';
+                const ext = getExtLower(file.name).slice(1);
+                const fileObj = {
                     id: id,
                     file: file,
+                    type: fileType,
+                    ext: ext,
                     status: 'pending',
                     result: null,
-                    error: null
-                });
+                    error: null,
+                    needsEkey: false,
+                    footerInfo: null
+                };
+                if (fileType === 'qmc') {
+                    try {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const data = new Uint8Array(arrayBuffer);
+                        const detection = QMCDecoder.detectType(data, ext);
+                        if (detection && detection.needsEkey) {
+                            fileObj.needsEkey = true;
+                            pendingMusicexCount++;
+                        }
+                        fileObj.footerInfo = detection;
+                    } catch (e) {
+                        console.warn('QMC 文件检测失败:', e);
+                    }
+                }
+                files.push(fileObj);
                 stats.total++;
                 renderFileItem({
                     id: id,
                     name: file.name,
                     size: file.size,
-                    status: 'pending'
+                    status: 'pending',
+                    type: fileType
                 });
             }
         }
         updateStats();
         updateButtons();
+        if (currentMode === 'qmc') checkForMusicexFiles();
     }
     
     function renderFileItem(item) {
         const div = document.createElement('div');
         div.className = 'file-item';
         div.id = 'file-' + item.id;
+        const typeTag = item.type === 'ncm' ? 'NCM' : 'QMC';
         div.innerHTML = `
             <img class="file-cover" id="cover-${item.id}" alt="封面">
-            <div class="file-icon"><span class="material-icons-round">audio_file</span></div>
+            <div class="file-icon"><span class="material-icons-round">${item.type === 'ncm' ? 'audio_file' : 'headphones'}</span></div>
             <div class="file-info">
                 <div class="file-name" title="${item.name}">${item.name}</div>
-                <div class="file-status">${formatFileSize(item.size)} · 等待转换</div>
+                <div class="file-status">${formatFileSize(item.size)} · ${typeTag} · 等待转换</div>
                 <div class="progress-bar" style="display: none;">
                     <div class="progress-fill" style="width: 0%"></div>
                 </div>
@@ -990,12 +1550,14 @@ const ID3Writer = (function() {
             if (file.status === 'success') stats.success--;
             else if (file.status === 'error') stats.fail--;
             else stats.total--;
+            if (file.needsEkey) pendingMusicexCount--;
             files.splice(index, 1);
         }
         const div = document.getElementById('file-' + id);
         if (div) div.remove();
         updateStats();
         updateButtons();
+        checkForMusicexFiles();
     }
     
     function downloadFile(id) {
@@ -1005,9 +1567,8 @@ const ID3Writer = (function() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        const songName = sanitizeFileName(file.result.songName);
-        const artist = sanitizeFileName(file.result.artist);
-        a.download = `${artist} - ${songName}.${file.result.format.ext}`;
+        const baseName = sanitizeFileName(file.file.name.replace(/\.[^.]+$/, ''));
+        a.download = `${baseName}.${file.result.format.ext}`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -1021,16 +1582,15 @@ const ID3Writer = (function() {
         try {
             const zip = new JSZip();
             for (const fileObj of successFiles) {
-                const songName = sanitizeFileName(fileObj.result.songName);
-                const artist = sanitizeFileName(fileObj.result.artist);
-                const fileName = `${artist} - ${songName}.${fileObj.result.format.ext}`;
+                const baseName = sanitizeFileName(fileObj.file.name.replace(/\.[^.]+$/, ''));
+                const fileName = `${baseName}.${fileObj.result.format.ext}`;
                 zip.file(fileName, fileObj.result.audioData);
             }
             const content = await zip.generateAsync({ type: 'blob' });
             const url = URL.createObjectURL(content);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `ncm_converted_${Date.now()}.zip`;
+            a.download = `converted_${Date.now()}.zip`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1047,13 +1607,28 @@ const ID3Writer = (function() {
         updateFileItem(fileObj.id, { status: 'processing', progress: 0 });
         try {
             const arrayBuffer = await fileObj.file.arrayBuffer();
-            const result = await NCMDecrypt.parse(arrayBuffer, (progress) => { updateFileItem(fileObj.id, { status: 'processing', progress: progress }); });
-            const tags = { title: result.songName, artist: result.artist, album: result.album };
-            if (result.image) {
-                tags.image = { imageBuffer: result.image, mime: result.imageMime || 'image/jpeg', type: { id: 3, name: 'Front Cover' }, description: '' };
+            let result;
+            if (fileObj.type === 'ncm') {
+                result = await NCMDecrypt.parse(arrayBuffer, (progress) => { updateFileItem(fileObj.id, { status: 'processing', progress: progress }); });
+                const tags = { title: result.songName, artist: result.artist, album: result.album };
+                if (result.image) {
+                    tags.image = { imageBuffer: result.image, mime: result.imageMime || 'image/jpeg', type: { id: 3, name: 'Front Cover' }, description: '' };
+                }
+                const audioWithTags = ID3Writer.write(tags, result.audioData);
+                result.audioData = audioWithTags;
+            } else {
+                if (fileObj.needsEkey) {
+                    const userEkey = ekeyInput.value.trim();
+                    if (!userEkey) {
+                        fileObj.status = 'pending';
+                        ekeySection.classList.add('visible');
+                        updateFileItem(fileObj.id, { status: 'error', error: '需要 ekey，请输入后重新转换' });
+                        return false;
+                    }
+                }
+                const userEkey = ekeyInput.value.trim() || undefined;
+                result = await QMCDecoder.parse(arrayBuffer, fileObj.ext, userEkey, (progress) => { updateFileItem(fileObj.id, { status: 'processing', progress: progress }); });
             }
-            const audioWithTags = ID3Writer.write(tags, result.audioData);
-            result.audioData = audioWithTags;
             fileObj.status = 'success';
             fileObj.result = result;
             stats.success++;
@@ -1061,8 +1636,8 @@ const ID3Writer = (function() {
                 status: 'success', 
                 format: result.format.ext, 
                 size: result.audioData.length,
-                coverImage: result.image,
-                coverMime: result.imageMime
+                coverImage: result.image || null,
+                coverMime: result.imageMime || null
             });
             return true;
         } catch (error) {
@@ -1083,10 +1658,23 @@ const ID3Writer = (function() {
         updateButtons();
     }
     
+    function checkForMusicexFiles() {
+        const hasMusicex = files.some(f => f.type === 'qmc' && f.needsEkey && f.status !== 'success');
+        if (hasMusicex) {
+            ekeySection.classList.add('visible');
+        } else {
+            const allResolved = files.every(f => !f.needsEkey || f.status === 'success');
+            if (allResolved) ekeySection.classList.remove('visible');
+        }
+    }
+    
     function clearAll() {
         files = []; fileList.innerHTML = ''; stats = { total: 0, success: 0, fail: 0 };
+        pendingMusicexCount = 0;
         updateStats(); updateButtons();
         closePlayer();
+        ekeySection.classList.remove('visible');
+        ekeyInput.value = '';
     }
     
     let audio = null;
@@ -1152,8 +1740,8 @@ const ID3Writer = (function() {
             alert('音频播放失败，请检查文件格式');
         });
         
-        playerTitle.textContent = fileObj.result.songName;
-        playerArtist.textContent = fileObj.result.artist;
+        playerTitle.textContent = fileObj.file.name.replace(/\.[^.]+$/, '');
+        playerArtist.textContent = fileObj.type.toUpperCase() + ' 文件';
         
         if (fileObj.result.image) {
             const coverBlob = new Blob([fileObj.result.image], { type: fileObj.result.imageMime || 'image/jpeg' });
@@ -1228,6 +1816,13 @@ const ID3Writer = (function() {
     convertBtn.addEventListener('click', convertAll);
     downloadAllBtn.addEventListener('click', downloadAll);
     clearBtn.addEventListener('click', clearAll);
+    
+    ekeyInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const pendingFiles = files.filter(f => f.needsEkey && f.status !== 'success');
+            if (pendingFiles.length > 0) convertAll();
+        }
+    });
 })();
 </script>
 </body>
